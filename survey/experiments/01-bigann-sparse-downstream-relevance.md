@@ -70,40 +70,40 @@ The full CSR download is listed as 5.5 GB compressed for 8,841,823 rows; the que
 - [MS MARCO Passage Ranking data and qrels](https://github.com/microsoft/MSMARCO-Passage-Ranking)
 - [LADR paper](https://arxiv.org/abs/2307.16779) and [LADR implementation](https://github.com/terrierteam/pyterrier_dr/blob/f790d83b420ab70abafe8c608c8d3a086c430f3b/pyterrier_dr/flex/ladr.py)
 
-## Run Status / Interim Results — 2026-09-07
+## Run Status / Results — 2026-09-07 (Asia/Kolkata)
 
-This is an interim Mac Apple-Silicon update for the 100,000-row base and
-6,980 queries only. It does not claim full-corpus results or a leaderboard
-placement. Big-ANN ANN Recall@10 remains overlap with exact SPLADE
-inner-product neighbors; it is not MS MARCO relevance recall.
+Completed native macOS arm64 runs are ANN-only and not leaderboard-comparable:
+Big-ANN Recall@10 is overlap with the SPLADE-neighbor ground truth, not MS
+MARCO relevance recall.
 
-Only these observations are admitted at this stage:
+| Method | Dataset / queries | k | ANN Recall@10 | QPS | Outcome |
+|---|---|---:|---:|---:|---|
+| Organizer linscan | `sparse-full` / 6,980 | 1,000 | 0.9999426934 | 72.461 | completed |
+| Organizer linscan (`run_linscan.py`) | `sparse-small` / 6,980 | 10 | — | 26,782.815 | completed smoke |
+| PyANNS | `sparse-small` / 6,980 | 10 | 0.927521490 | 13,877.079 | completed smoke |
+| SHNSW / GrassRMA | `sparse-small` / 6,980 | 10 | 0.689527 | 33,351.2 | completed smoke |
+| CUFE | `sparse-small` / 6,980 | 10 | 0.999914040 | 14,995.173 | completed smoke |
+| SUSTech-WHU | `sparse-small` / 6,980 | 10 | — | — | not run: source repository 404 |
+| NLE | `sparse-small` / 6,980 | 10 | — | — | no completed smoke; ARM build remained detached |
 
-- **Organizer linscan smoke:** **4,307.09 QPS** on 100k/6,980. This is a
-  clearly labeled **small-smoke** result and is **not leaderboard
-  comparable**.
-- **PyANNS:** ANN Recall@10 **0.92752149** and **13,877.08 QPS**, with
-  `R=32, L=1000, budget=0.1, ef=80, k=10, OMP_NUM_THREADS=8`. This is also a
-  100k/6,980 Mac smoke result, not a full-track or leaderboard-comparable
-  measurement.
-- **SHNSW / GrassRMA:** native build succeeded, but there is **no search
-  result** for this interim report because of a binding/search-harness
-  blocker. No recall or QPS is claimed.
-- **Cufe:** a preliminary adapter returned shape `(6980, 10)` with a query
-  wall-time observation of `0.465483 s`; hardcoded-thread and harness issues
-  mean its recall/QPS are withheld as **not official comparable metrics**.
-- **SUSTech-WHU:** the original source is currently unavailable (GitHub 404),
-  so no result is claimed.
+Environment: macOS Apple Silicon (`arm64`), Python 3.12.13, `uv` 0.11.17,
+task-local `shared/experiment-run/.venv`; Docker 29.7.2 client was present but
+the Colima Docker server was unavailable. The full linscan run used 16 threads
+and produced 6,980,000 zero-based row-ID records.
 
-No MS MARCO qrels **MRR@10** or **Recall@1000** is reported yet: CSR
-row-to-QID and row-to-PID mapping is still being mechanically verified. No
-graded qrels are available for an interim **nDCG@10** result.
+No MS MARCO MRR@10 or Recall@1000 is reported. Query-row → QID and the
+100,000-row prefix row → PID were checked, but the full 8,841,823-row
+base-row → PID mapping was not exhaustively verified. Joining the full row-ID
+run to qrels would therefore be an unverified result. Binary MS MARCO qrels
+also do not support a graded nDCG@10 claim here.
 
-Diagnostic: candidate Recall@1000 and RR@10/nDCG measure different stages.
-Candidate Recall@1000 measures whether a relevant document entered the
-candidate set; RR@10 and nDCG measure how the final ranker/scorer places
-relevant documents near the top. A relevant document may be in the top 1000
-but below the top 10.
+Outputs and logs: `shared/experiment-run/results/linscan-full-rowids.trec`,
+`shared/experiment-run/results/linscan-full-ann-metrics.json`,
+`shared/experiment-run/results/linscan-small.trec`, and
+`shared/experiment-run/logs/linscan-full.log`; method-specific evidence is in
+`codex-to-chatgpt/pyanns.md`, `shnsw.md`, `cufe.md`, and `sustech.md`.
 
-No claim is made that LADR beat or was beaten by any sparse method. The
-representations and retrieval/ranking pipelines are not yet apples-to-apples.
+Next valid step: obtain or reproduce an exact full-base row → PID artifact,
+mechanically verify it, then convert the `k=1,000` linscan row-ID run to PIDs
+and evaluate the official qrels. Do not infer downstream relevance metrics
+from the ANN measurements.

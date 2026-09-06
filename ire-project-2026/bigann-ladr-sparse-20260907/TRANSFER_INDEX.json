@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "task_id": "bigann-ladr-sparse-20260907",
+  "project": "ire-project-2026",
+  "task_slug": "bigann-ladr-sparse-20260907",
+  "index_revision": 1,
+  "status": "INITIALIZED",
+  "created_at": "2026-09-06T21:02:53Z",
+  "updated_at": "2026-09-06T21:02:53Z",
+  "index_writer": "Codex",
+  "workspace_root": "/Users/nilan/.codex/scratch/cross-surface/ire-project-2026/bigann-ladr-sparse-20260907",
+  "task_subfolders": [
+    {
+      "path": "chatgpt-to-codex",
+      "status": "PRESENT"
+    },
+    {
+      "path": "codex-to-chatgpt",
+      "status": "PRESENT"
+    },
+    {
+      "path": "shared",
+      "status": "PRESENT"
+    }
+  ],
+  "shared_repositories": [
+    {
+      "repository": "nilansa/codex-chatgpt-scratch",
+      "local_path": "shared/codex-chatgpt-scratch",
+      "remote_url": "https://github.com/nilansa/codex-chatgpt-scratch.git",
+      "source_revision": "e2af2bd5cb6681da0dbf344453d517e5b2d56394",
+      "status": "CLONED"
+    },
+    {
+      "repository": "nilansa/ire-project-2026",
+      "local_path": "shared/ire-project-2026",
+      "remote_url": "https://github.com/nilansa/ire-project-2026.git",
+      "source_revision": "6b4ca73582e8ca82e7545badb2a363a65b011bbe",
+      "status": "CLONED"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifact_id": "bigann-ladr-sparse-20260907:transfer-index",
+      "path": "TRANSFER_INDEX.json",
+      "remote_repository": "nilansa/ire-project-2026",
+      "remote_path": "ire-project-2026/bigann-ladr-sparse-20260907/TRANSFER_INDEX.json",
+      "status": "PENDING_COMMIT_AND_PUSH",
+      "sha256": "NOT_EMBEDDED_SELF_HASH"
+    },
+    {
+      "artifact_id": "bigann-ladr-sparse-20260907:bootstrap-summary",
+      "path": "codex-to-chatgpt/bootstrap-summary.md",
+      "status": "PLANNED"
+    },
+    {
+      "artifact_id": "bigann-ladr-sparse-20260907:codex-chatgpt-scratch-clone",
+      "path": "shared/codex-chatgpt-scratch",
+      "status": "CLONED"
+    },
+    {
+      "artifact_id": "bigann-ladr-sparse-20260907:ire-project-2026-clone",
+      "path": "shared/ire-project-2026",
+      "status": "CLONED"
+    }
+  ],
+  "remote_index": {
+    "provider": "github",
+    "repository": "nilansa/ire-project-2026",
+    "path": "ire-project-2026/bigann-ladr-sparse-20260907/TRANSFER_INDEX.json",
+    "status": "PENDING_COMMIT_AND_PUSH"
+  },
+  "constraints": [
+    "This task has one authoritative TRANSFER_INDEX.json writer: Codex.",
+    "The canonical IRE repository is not modified during bootstrap."
+  ],
+  "notes": "Bootstrap staging only; no experiment code, data, or canonical IRE files are modified."
+}

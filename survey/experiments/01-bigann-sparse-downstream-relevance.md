@@ -84,7 +84,7 @@ MARCO relevance recall.
 | SHNSW / GrassRMA | `sparse-small` / 6,980 | 10 | 0.689527 | 33,351.2 | completed smoke |
 | CUFE | `sparse-small` / 6,980 | 10 | 0.999914040 | 14,995.173 | completed smoke |
 | SUSTech-WHU | `sparse-small` / 6,980 | 10 | — | — | not run: source repository 404 |
-| NLE | `sparse-small` / 6,980 | 10 | — | — | no completed smoke; ARM build remained detached |
+| NLE | `sparse-small` / 6,980 | 10 | 0.843510029 | 2,556.199 | completed native ARM smoke (1 retrieval thread; 8-thread path SIGSEGV) |
 
 Environment: macOS Apple Silicon (`arm64`), Python 3.12.13, `uv` 0.11.17,
 task-local `shared/experiment-run/.venv`; Docker 29.7.2 client was present but
@@ -101,7 +101,7 @@ Outputs and logs: `shared/experiment-run/results/linscan-full-rowids.trec`,
 `shared/experiment-run/results/linscan-full-ann-metrics.json`,
 `shared/experiment-run/results/linscan-small.trec`, and
 `shared/experiment-run/logs/linscan-full.log`; method-specific evidence is in
-`codex-to-chatgpt/pyanns.md`, `shnsw.md`, `cufe.md`, and `sustech.md`.
+`codex-to-chatgpt/pyanns.md`, `shnsw.md`, `cufe.md`, `nle.md`, and `sustech.md`.
 
 Next valid step: obtain or reproduce an exact full-base row → PID artifact,
 mechanically verify it, then convert the `k=1,000` linscan row-ID run to PIDs

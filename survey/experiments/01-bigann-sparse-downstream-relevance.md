@@ -69,3 +69,41 @@ The full CSR download is listed as 5.5 GB compressed for 8,841,823 rows; the que
 - [Big-ANN original sparse leaderboard](https://github.com/harsha-simhadri/big-ann-benchmarks/blob/89a3abaafa63dda46b94b308bdf039e699841b3b/neurips23/Azure_D8lds_v5_table.md)
 - [MS MARCO Passage Ranking data and qrels](https://github.com/microsoft/MSMARCO-Passage-Ranking)
 - [LADR paper](https://arxiv.org/abs/2307.16779) and [LADR implementation](https://github.com/terrierteam/pyterrier_dr/blob/f790d83b420ab70abafe8c608c8d3a086c430f3b/pyterrier_dr/flex/ladr.py)
+
+## Run Status / Interim Results — 2026-09-07
+
+This is an interim Mac Apple-Silicon update for the 100,000-row base and
+6,980 queries only. It does not claim full-corpus results or a leaderboard
+placement. Big-ANN ANN Recall@10 remains overlap with exact SPLADE
+inner-product neighbors; it is not MS MARCO relevance recall.
+
+Only these observations are admitted at this stage:
+
+- **Organizer linscan smoke:** **4,307.09 QPS** on 100k/6,980. This is a
+  clearly labeled **small-smoke** result and is **not leaderboard
+  comparable**.
+- **PyANNS:** ANN Recall@10 **0.92752149** and **13,877.08 QPS**, with
+  `R=32, L=1000, budget=0.1, ef=80, k=10, OMP_NUM_THREADS=8`. This is also a
+  100k/6,980 Mac smoke result, not a full-track or leaderboard-comparable
+  measurement.
+- **SHNSW / GrassRMA:** native build succeeded, but there is **no search
+  result** for this interim report because of a binding/search-harness
+  blocker. No recall or QPS is claimed.
+- **Cufe:** a preliminary adapter returned shape `(6980, 10)` with a query
+  wall-time observation of `0.465483 s`; hardcoded-thread and harness issues
+  mean its recall/QPS are withheld as **not official comparable metrics**.
+- **SUSTech-WHU:** the original source is currently unavailable (GitHub 404),
+  so no result is claimed.
+
+No MS MARCO qrels **MRR@10** or **Recall@1000** is reported yet: CSR
+row-to-QID and row-to-PID mapping is still being mechanically verified. No
+graded qrels are available for an interim **nDCG@10** result.
+
+Diagnostic: candidate Recall@1000 and RR@10/nDCG measure different stages.
+Candidate Recall@1000 measures whether a relevant document entered the
+candidate set; RR@10 and nDCG measure how the final ranker/scorer places
+relevant documents near the top. A relevant document may be in the top 1000
+but below the top 10.
+
+No claim is made that LADR beat or was beaten by any sparse method. The
+representations and retrieval/ranking pipelines are not yet apples-to-apples.

@@ -1,12 +1,11 @@
 # Research Plan (Draft)
 
-**Team:** **Koios** (Κοῖος; commonly anglicized as *Coeus*), the Greek Titan.
-
+**Team:** Coeus
 ## 1. Problem / Idea
 
 **Source problem:** Microsoft Research — [Efficient and accurate post-training of retrieval models](https://www.microsoft.com/en-us/research/academic-program/microsoft-research-fellowship/research-challenges/)
 
-Microsoft frames retrieval post-training around using high-quality feedback from reward models such as LLM-based cross-encoders or human feedback. One of its immediate questions is **data selection**: which query-document pairs should be selected for reward scoring so that post-training improves downstream retrieval and/or RAG performance?
+Microsoft Research Fellowship have given a Research Proposal -- retrieval post-training around using high-quality feedback from reward models such as LLM-based cross-encoders or human feedback-- these are expensive operations. One of its immediate questions is **data selection**: which query-document pairs should be selected for reward scoring so that post-training improves downstream retrieval and/or RAG performance? So given a fixed budget which query document pairs we should label- this determines effectively the sampling we are doing - the loss function sees what we label.
 
 ### Our focus
 

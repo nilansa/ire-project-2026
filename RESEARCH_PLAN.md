@@ -19,9 +19,11 @@ Examples of interventions include the ANN family/search procedure and operating 
 ## 2. Why This Matters
 
 - Microsoft explicitly identifies **which query-document pairs receive expensive reward-model feedback** as a core post-training problem, together with the computational cost of large reward models.
+- Under a fixed feedback budget, every method can spend the **same full number of reward-model calls**. The question is which documents those calls are spent on.
 - A candidate generator decides which documents are even available to be labeled/scored. Documents not surfaced by candidate search cannot contribute reward supervision in that iteration.
 - [ANCE (ICLR 2021)](https://www.microsoft.com/en-us/research/publication/approximate-nearest-neighbor-negative-contrastive-learning-for-dense-text-retrieval/) showed that changing the training-negative distribution by retrieving global hard negatives from an ANN index materially changes dense-retriever learning and performance.
 - [RocketQA (NAACL 2021)](https://aclanthology.org/2021.naacl-main.466/) retrieves candidate hard negatives and then uses a stronger cross-encoder to denoise them, demonstrating the importance of both the candidate pool and the teacher signal.
+- [LADR (SIGIR 2023)](https://doi.org/10.1145/3539618.3591715) shows that candidate generation itself can be a structured search procedure: lexical retrieval seeds a dense document-proximity graph, and the search policy controls which documents are explored.
 - A recent [survey of dense text retrieval (TOIS 2024)](https://doi.org/10.1145/3637870) summarizes that dense retrievers are sensitive to negative quality, especially for hard negatives and false negatives.
 
 This motivates treating the ANN/search stage not only as an inference-speed component, but as a component that can change the **training data seen by the post-training pipeline**.
@@ -42,6 +44,13 @@ This motivates treating the ANN/search stage not only as an inference-speed comp
 - Uses a cross-encoder to filter/denoise these candidates before training the dual encoder.
 - Closely matches the retrieve → expensive scorer → retriever-training structure we want to study.
 
+### LADR — Kulkarni et al., SIGIR 2023
+[Lexically-Accelerated Dense Retrieval](https://doi.org/10.1145/3539618.3591715)
+
+- Starts from lexical retrieval results and explores a document-proximity graph using dense scores.
+- Its proactive and adaptive variants explicitly change **which documents enter the explored candidate set under a search budget**.
+- LADR itself is an inference-time retrieval method, not a reward-feedback/post-training method. For our project it is useful evidence that candidate construction is a meaningful algorithmic choice, which we then study inside the Microsoft feedback-selection setting.
+
 ### Dense Retrieval Survey — Zhao et al., TOIS 2024
 [Dense Text Retrieval Based on Pretrained Language Models: A Survey](https://doi.org/10.1145/3637870)
 
@@ -61,9 +70,9 @@ This motivates treating the ANN/search stage not only as an inference-speed comp
 
 **Sub-questions**
 
-1. How do ANN choices/hyperparameters change candidate overlap, hardness, and teacher-score distributions?
+1. How do ANN/search choices and hyperparameters change candidate overlap, hardness, and teacher-score distributions?
 2. Do these changes translate into measurable differences in the final retriever?
-3. Under a fixed reward-scoring budget, can a cheaper ANN operating point produce essentially the same final retriever quality as a more expensive/high-recall search?
+3. Under the **same fully spent reward-scoring budget**, can a cheaper search procedure produce equally useful supervision and essentially the same final retriever quality as a more expensive/high-recall search?
 
 ## 5. Experimental Plan
 
@@ -72,7 +81,7 @@ This motivates treating the ANN/search stage not only as an inference-speed comp
 - corpus and training/evaluation queries;
 - starting dense-retriever checkpoint;
 - document/query embeddings used for the candidate-generation comparison;
-- number of candidate pairs sent to the teacher;
+- **reward-scoring budget: the same number of query-document pairs are scored in every condition**;
 - reward model / cross-encoder;
 - post-training loss, optimizer, steps, batch size, and training data budget;
 - downstream evaluation protocol.
@@ -84,6 +93,8 @@ Initial comparison:
 - exact nearest-neighbor search as a reference;
 - HNSW at multiple `efSearch` operating points;
 - IVF-style search at multiple `nprobe` operating points.
+
+A later extension can include structured/hybrid candidate-generation procedures such as LADR-style lexical seeding plus graph exploration.
 
 Where possible, compare both **matched-recall** and **matched-compute/latency** operating points.
 
@@ -103,8 +114,8 @@ Where possible, compare both **matched-recall** and **matched-compute/latency** 
 
 ## 6. Research Threads
 
-1. **Candidate-generation sensitivity:** isolate ANN method and search hyperparameters as the intervention.
-2. **Feedback-budget trade-off:** test whether cheaper search produces equally useful candidates under a fixed number of expensive teacher scores.
+1. **Candidate-generation sensitivity:** isolate ANN/search method and search hyperparameters as the intervention.
+2. **Feedback-budget trade-off:** spend the same complete reward-model budget in every condition and test whether different candidate generators use that budget more or less effectively.
 3. **Mechanism analysis:** connect ANN recall/overlap/hardness to the resulting teacher labels and gradient/training signal.
 4. **Iterative post-training:** after establishing the one-iteration effect, study whether the effect compounds when the retriever/index is refreshed over multiple rounds.
 
@@ -120,4 +131,4 @@ Where possible, compare both **matched-recall** and **matched-compute/latency** 
 
 ## Current one-line formulation
 
-> **Holding the retriever, teacher, feedback budget, and post-training procedure fixed, how does the ANN/search procedure used to choose candidate query-document pairs for expensive feedback affect the final retriever?**
+> **Holding the retriever, teacher, fully spent feedback budget, and post-training procedure fixed, how does the ANN/search procedure used to choose candidate query-document pairs for expensive feedback affect the final retriever?**

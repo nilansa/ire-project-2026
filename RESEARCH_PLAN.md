@@ -119,6 +119,15 @@ Where possible, compare both **matched-recall** and **matched-compute/latency** 
 3. **Mechanism analysis:** connect ANN recall/overlap/hardness to the resulting teacher labels and gradient/training signal.
 4. **Iterative post-training:** after establishing the one-iteration effect, study whether the effect compounds when the retriever/index is refreshed over multiple rounds.
 
+### Additional training-free candidate-selection directions
+
+| Direction | How it fits the Microsoft feedback-selection problem |
+|---|---|
+| **Diversity-aware candidate selection** | If the ANN top results are redundant, use a training-free diversification step before reward scoring so the fixed teacher budget covers different attributes/facets. [Barman et al., *Welfarist Formulations for Diverse Similarity Search*, ICLR 2026](https://proceedings.iclr.cc/paper_files/paper/2026/hash/abaab8d9908c3df048fbfc0802dc778e-Abstract-Conference.html) gives a relevance-diversity objective that can be applied on top of a standard ANN method. |
+| **Query decomposition** | For complex/multi-hop queries, decompose the original query into subqueries, retrieve candidates for each, merge/deduplicate them, and spend the **same total reward-model budget** on the merged pool. This can make the feedback budget cover different evidence needs that one query embedding may miss. A concrete training-free example is [Ammann et al., *Question Decomposition for Retrieval-Augmented Generation*, ACL SRW 2025](https://aclanthology.org/2025.acl-srw.32/). |
+
+For the query-decomposition direction, if we want to isolate **data selection only**, the selected documents should still be attached to the **original query** for post-training; training directly on the generated subqueries would be a separate query-augmentation intervention.
+
 ## 7. Resources and Feasibility
 
 - **Data:** standard dense-retrieval benchmarks such as MS MARCO passage retrieval for the initial controlled study.

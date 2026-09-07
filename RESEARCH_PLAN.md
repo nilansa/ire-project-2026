@@ -17,7 +17,7 @@ Examples of interventions include the ANN family/search procedure and operating 
 
 ## 2. Why This Matters
 
-- Microsoft explicitly identifies **which query-document pairs receive expensive reward-model feedback** as a core post-training problem, together with the computational cost of large reward models.
+
 - Under a fixed feedback budget, every method can spend the **same full number of reward-model calls**. The question is which documents those calls are spent on.
 - A candidate generator decides which documents are even available to be labeled/scored. Documents not surfaced by candidate search cannot contribute reward supervision in that iteration.
 - [ANCE (ICLR 2021)](https://www.microsoft.com/en-us/research/publication/approximate-nearest-neighbor-negative-contrastive-learning-for-dense-text-retrieval/) showed that changing the training-negative distribution by retrieving global hard negatives from an ANN index materially changes dense-retriever learning and performance.
@@ -48,13 +48,13 @@ This motivates treating the ANN/search stage not only as an inference-speed comp
 
 - Starts from lexical retrieval results and explores a document-proximity graph using dense scores.
 - Its proactive and adaptive variants explicitly change **which documents enter the explored candidate set under a search budget**.
-- LADR itself is an inference-time retrieval method, not a reward-feedback/post-training method. For our project it is useful evidence that candidate construction is a meaningful algorithmic choice, which we then study inside the Microsoft feedback-selection setting.
+- LADR itself is an inference-time retrieval method, not a reward-feedback/post-training method. But it shows we can choose to spend compute on which "clusters" or "regions" for dense retrieval once we get few seed documents using a cheaper sparse retrieval technique (BM25)
 
 ### Dense Retrieval Survey — Zhao et al., TOIS 2024
 [Dense Text Retrieval Based on Pretrained Language Models: A Survey](https://doi.org/10.1145/3637870)
 
 - Summarizes evidence that dense-retriever training is sensitive to negative-sample quality.
-- Highlights the trade-off between informative hard negatives and false negatives, motivating careful candidate selection.
+- Highlights the trade-off between informative hard negatives and false negatives, motivating careful candidate selection. Validates our hypothesis that the ANN determines what finally the loss function sees when training the retrieval model
 
 ### ADAM — Tao et al., ACL Findings 2024
 [ADAM: Dense Retrieval Distillation with Adaptive Dark Examples](https://aclanthology.org/2024.findings-acl.692/)

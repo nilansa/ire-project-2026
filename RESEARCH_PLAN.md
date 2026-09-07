@@ -4,69 +4,119 @@
 
 ## Brief of the idea
 
-This project studies **data selection for post-training dense retrieval models**: under a fixed budget for expensive relevance/reward feedback, which query-document pairs should be selected for scoring so that the resulting supervision improves the final retriever most effectively?
+- The project is based on the Microsoft Research proposal [**Efficient and accurate post-training of retrieval models**](https://www.microsoft.com/en-us/research/academic-program/microsoft-research-fellowship/research-challenges/).
+- A retriever first produces candidate documents for a query.
+- High-quality relevance/reward feedback is then obtained for some query-document pairs using an expensive scorer, for example:
+  - an LLM-based cross-encoder, or
+  - human feedback.
+- The main problem is that relevance signals are missing for most possible query-document pairs, while obtaining high-quality feedback for all pairs is too expensive.
+- So, under a fixed feedback budget, the key question is: **which query-document pairs should be selected for reward scoring?**
+- We will study this question from the **ANN/search side**: does the search method used to generate candidates affect which examples receive feedback and, finally, the post-trained retriever?
 
 ## 1. What is the idea?
 
-The project was motivated by the Microsoft Research Fellowship challenge [**Efficient and accurate post-training of retrieval models**](https://www.microsoft.com/en-us/research/academic-program/microsoft-research-fellowship/research-challenges/). The initial exploration had started from the **Big ANN Benchmarks/competition**, which studies the effectiveness-efficiency trade-off of approximate nearest-neighbor search at large scale. The Microsoft challenge suggested a more direct training-time question: how should retrieval systems decide **which query-document pairs are worth obtaining expensive feedback for?**
+- The Microsoft Research proposal studies post-training retrieval models using high-quality feedback from reward models.
+- The proposal notes that retrieval is often constrained by **sparse training data**, meaning that relevance signals are unavailable for most query-document pairs.
+- It asks, among other questions:
+  - **Data Selection:** which queries and corresponding documents should be selected for scoring by reward models during post-training to maximize downstream retrieval and/or RAG performance?
+  - **Loss Formulation:** what post-training loss should be used for a given retrieval architecture and feedback design?
+- This project will first focus on the **Data Selection** question.
+- The basic pipeline is:
+  - query → retriever/search → candidate documents → expensive reward/relevance scoring → post-training loss → updated retriever.
+- Under a fixed scoring budget:
+  - the search stage decides which documents are available as candidates;
+  - only the selected query-document pairs receive expensive feedback;
+  - the post-training loss is computed using those scored/labeled pairs.
+- Therefore, changing the candidate-generation search may change what the model learns even when the reward model and loss are fixed.
+- The first concrete question is:
 
-Retrieval typically has sparse supervision: relevance signals are unavailable for most possible query-document pairs. The Microsoft challenge proposes using high-quality feedback from reward/relevance models, such as LLM-based cross-encoders or human feedback, during post-training. Such feedback is substantially more expensive than first-stage retrieval, so it cannot generally be obtained for every possible query-document pair.
+> **Holding the retriever, reward model, feedback budget, post-training loss, and evaluation fixed, does changing the ANN/search procedure used to generate candidates change the final post-trained retriever?**
 
-Two immediate questions in the challenge are:
-
-1. **Data selection:** which queries and corresponding documents should be selected for scoring by reward models during post-training so as to maximize downstream retrieval and/or RAG performance?
-2. **Loss formulation:** given the retrieval architecture and the available pointwise, pairwise, or listwise feedback, what post-training loss should be optimized?
-
-The **initial scope of this project is the data-selection question**. Under a fixed feedback budget, the selection mechanism determines the empirical distribution of scored/labeled query-document pairs. Since the post-training loss is computed from these pairs, this determines which examples contribute supervision and gradients to the retriever. Loss formulation is therefore an important coupled question, but it will initially be **held fixed** so that the effect of data/candidate selection can be isolated.
-
-A first concrete question is whether the **search procedure used to construct the candidate pool** is itself consequential. Before an expensive reward model can score documents, some retrieval/search mechanism must decide which documents are exposed as candidates. We therefore ask:
-
-> **Holding the retriever, reward model, feedback budget, post-training loss, and evaluation fixed, does changing the ANN/search procedure used to construct candidates change the final post-trained retriever?**
+- This direction grew out of an initial study of the **Big ANN Benchmarks**, where different ANN methods are compared on both retrieval effectiveness (for example, recall) and efficiency (for example, queries per second).
 
 ### a. Why is it important? If it were solved what would improve?
 
-The central practical constraint is that high-quality feedback is expensive. If only a fixed number of query-document pairs can be scored, improving **where this budget is spent** can improve the quality of supervision without requiring a larger teacher or more reward-model calls.
-
-Candidate generation is upstream of this decision. A document that is never surfaced cannot be scored and therefore cannot contribute to the post-training loss. Consequently, the search layer may affect not only retrieval latency but also the **training distribution** seen during post-training.
-
-This concern is especially relevant because ANN systems expose a strong effectiveness-efficiency trade-off. The [Big ANN competition results](https://papers.neurips.cc/paper_files/paper/2025/file/63092d79154adebd7305dfd498cbff70-Paper-Datasets_and_Benchmarks_Track.pdf) compare systems using recall and queries-per-second (QPS), and show that substantially different throughput can be obtained at comparable target recall. If ANN search is used inside candidate generation for post-training, the important unanswered question is whether moving along this recall/throughput frontier is **training-neutral**, or whether the changed candidate set also changes the final learned retriever.
-
-If this effect can be characterized, candidate search can be chosen jointly with the feedback budget rather than being treated as an independent systems component. More broadly, it would make it possible to distinguish gains due to **better supervision selection** from gains due to the teacher model or the loss itself.
+- High-quality reward/relevance feedback is expensive.
+- If only a fixed number of query-document pairs can be scored, we should spend that budget on the most useful pairs.
+- Candidate generation matters because:
+  - a document that is not retrieved cannot be scored;
+  - a document that is not scored cannot contribute feedback to the post-training loss.
+- ANN methods have an **effectiveness-efficiency trade-off**:
+  - higher recall can require more search work;
+  - faster search can return a somewhat different candidate set.
+- Big ANN shows this trade-off directly through recall and QPS comparisons.
+- The training-time question is therefore:
+  - if two ANN/search settings have similar retrieval effectiveness but return different candidates, do they lead to the same final retriever after post-training?
+- If this is understood, we can choose candidate search not only for speed, but also for how useful its candidates are for post-training.
 
 ### b. What is the relevant literature? Does the literature acknowledge this gap? Were there attempts at it.
 
 **[For review: ANCE — Xiong et al., ICLR 2021]**  
 [Approximate Nearest Neighbor Negative Contrastive Learning for Dense Text Retrieval](https://openreview.net/forum?id=zeFrfgyZln)
 
-ANCE identifies negative sampling as a training bottleneck for dense retrieval and uses an ANN index over the corpus to retrieve global hard negatives. Its results establish that the distribution of documents exposed to the loss can materially change retriever optimization and final retrieval quality. This is strong motivation for our premise that candidate selection matters. However, ANCE does **not** isolate the ANN algorithm or ANN operating point itself as the intervention while holding the rest of post-training fixed.
+- ANCE uses ANN retrieval to find global hard negatives for dense-retriever training.
+- It shows that **which negatives are used during training matters** for the final retriever.
+- This supports our motivation that the candidate set can affect learning.
+- ANCE does not directly compare different ANN methods or ANN search settings while keeping the rest of training fixed.
 
 **[For review: RocketQA — Qu et al., NAACL 2021]**  
 [RocketQA: An Optimized Training Approach to Dense Passage Retrieval for Open-Domain Question Answering](https://aclanthology.org/2021.naacl-main.466/)
 
-RocketQA retrieves candidate hard negatives and then uses a stronger cross-encoder to denoise them before training the dual encoder. This gives a close precedent for the pipeline considered here: **candidate retrieval → expensive cross-encoder feedback → retriever training**. It again shows that the candidate pool and teacher signal are coupled, but does not ask whether different ANN/search procedures create different downstream post-training outcomes.
+- RocketQA first retrieves candidate hard negatives.
+- A stronger cross-encoder is then used to filter/denoise them.
+- The selected examples are then used to train the retriever.
+- This is close to the structure we study:
+  - candidate retrieval → expensive cross-encoder feedback → retriever training.
 
 **[For review: LADR — Kulkarni et al., SIGIR 2023]**  
 [Lexically-Accelerated Dense Retrieval](https://arxiv.org/abs/2307.16779)
 
-LADR is an inference-time retrieval method rather than a post-training method, but it is relevant to the **allocation of retrieval compute**. It begins with lexical seed documents and then explores a document-proximity graph using dense scores. Adaptive LADR selectively expands the neighborhoods of the most promising documents, rather than spending dense-scoring compute uniformly. This demonstrates that deciding **where to search next** can itself be a structured budget-allocation problem. Our project asks whether an analogous choice, when made upstream of expensive reward scoring during post-training, changes the supervision and ultimately the trained retriever.
+- LADR is an inference-time retrieval method, not a post-training method.
+- It first gets seed documents using lexical retrieval and then spends dense-retrieval compute around promising document neighborhoods.
+- It is relevant because it shows that **where retrieval compute is spent** can be chosen in a structured way instead of searching every region equally.
+- In our setting, the related question is where to spend the expensive reward-scoring budget after candidate retrieval.
 
 **[For review: Big ANN Benchmarks]**  
 [Results of the Big ANN: NeurIPS'23 competition](https://papers.neurips.cc/paper_files/paper/2025/file/63092d79154adebd7305dfd498cbff70-Paper-Datasets_and_Benchmarks_Track.pdf)
 
-Big ANN makes explicit that ANN methods and operating points should be compared on a recall-throughput frontier rather than by recall alone. It establishes the systems-level motivation for varying search procedures. It does **not** answer the training-time question of whether two search procedures with similar retrieval recall but different candidate identities lead to the same post-trained model.
+- Big ANN compares ANN methods using retrieval effectiveness and efficiency, including recall and QPS.
+- It shows that different ANN methods/settings can operate at different points on this effectiveness-efficiency trade-off.
+- It does not study whether these ANN choices later change a trained retriever.
 
 **[For review: Preliminary sanity baseline]**
 
-A small controlled MS MARCO pilot was run with the same dense-retriever embeddings while changing only candidate search between **exact search, HNSW, and IVF-Flat**. HNSW and IVF-Flat were calibrated to similar high Recall@200 (approximately **95.6%** and **96.2%**), yet their candidate sets were not identical: exact/HNSW and exact/IVF candidate Jaccard were approximately **0.922** and **0.939**. After selecting 20 deterministic candidate positions per query, only about **44.9%** and **48.1%** of the selected examples were shared with exact search. This is only a sanity check, not evidence of a downstream training effect, but it shows that **similar ANN recall can still expose substantially different training examples**, making the proposed controlled post-training experiment worth pursuing.
+- We compared **exact search, HNSW, and IVF-Flat** using the same dense-retriever embeddings on a small MS MARCO setup.
+- HNSW and IVF-Flat had similar Recall@200:
+  - HNSW: **0.956**
+  - IVF-Flat: **0.962**
+- But the candidate sets were not identical:
+  - exact/HNSW Jaccard: **0.922**
+  - exact/IVF Jaccard: **0.939**
+- After selecting 20 candidate positions per query, the fraction shared with exact search was only:
+  - exact/HNSW: **0.449**
+  - exact/IVF: **0.481**
+- This does **not** yet show a training effect.
+- It only shows that similar ANN recall can still expose noticeably different query-document pairs to the next scoring stage.
 
-Taken together, the literature supports three pieces of the motivation: **(i)** which negatives/candidates are used for training matters, **(ii)** expensive cross-encoder feedback is naturally applied only after candidate retrieval, and **(iii)** ANN/search procedures differ in how they allocate retrieval compute and which candidates they recover. The gap we want to test directly is narrower: **when all other post-training choices are fixed, does the search mechanism that generates the candidate pool itself change the final retriever?**
+- The literature therefore supports that:
+  - candidate/negative selection matters for retriever training;
+  - expensive cross-encoder feedback can be applied after candidate retrieval;
+  - ANN methods can return different candidates under different effectiveness-efficiency settings.
+- The specific gap we want to test is:
+  - **when all other post-training choices are fixed, does the ANN/search method used for candidate generation change the final retriever?**
 
 ## 2. What is the plan?
 
 ### a. What are the various threads you want to pursue to solve this (more literature survey can be one of them but you should tell which specific papers, problems, etc)? Does it justify the specified team size? Do you have the resources (skills and hardware) to execute it?
 
-The broader goal is to view retrieval post-training as a sequence of **modules**—candidate generation, budgeted selection of query-document pairs for feedback, reward/relevance scoring, loss construction, and model update—and ask which of these decisions should remain fixed heuristics and which can be made **learnable**.
+- We will treat post-training retrieval as a small set of parts:
+  - candidate generation;
+  - selection of query-document pairs for reward scoring;
+  - reward/relevance scoring;
+  - post-training loss;
+  - retriever update.
+- The first thread will study **candidate generation and data selection**.
+- The first controlled experiment will keep the retriever, reward model, feedback budget, loss, and evaluation fixed, and change only the ANN/search procedure.
+- A later direction is to ask whether some of these selection decisions can be made **learnable** rather than fixed by hand.
 
-The first thread will focus on **learnable data/candidate selection**. Instead of using a fixed rule to choose which candidates receive expensive reward-model scores, a selection policy can potentially learn which query-document pairs are most useful to label under a fixed budget. The initial ANN study provides the controlled foundation for this direction: before learning a selector, we first need to establish whether changing only the candidate-generation mechanism changes the supervision distribution and the final retriever.
-
-[For review: a complementary direction is to study training-free/ad-hoc selection rules under the same budget. This will be specified after the initial learnable-selection formulation is fixed.]
+[For review: a complementary direction is to study simple training-free selection rules under the same feedback budget.]

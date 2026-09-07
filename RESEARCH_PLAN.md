@@ -2,6 +2,8 @@
 
 **Team:** Ceous
 
+**Working repository:** https://github.com/nilansa/ire-project-2026
+
 ## Brief of the idea
 
 - The project is based on the Microsoft Research proposal [**Efficient and accurate post-training of retrieval models**](https://www.microsoft.com/en-us/research/academic-program/microsoft-research-fellowship/research-challenges/).
@@ -79,24 +81,23 @@
 - It shows that different ANN methods/settings can operate at different points on this effectiveness-efficiency trade-off.
 - It does not study whether these ANN choices later change a trained retriever.
 
-**[For review: Preliminary sanity test]**
+**[For review: Preliminary sanity test]**  
+[Full sanity experiment record](https://github.com/nilansa/ire-project-2026/blob/main/survey/experiments/02-ann-backend-negative-selection-sanity.md)
 
 - **Dataset:** a 50,000-document MS MARCO passage subset.
 - **Queries:** 1,000 train, 200 calibration, and 500 evaluation queries.
 - **Encoder:** a fixed **ANCE FirstP** checkpoint.
 - **Candidate depth:** top-200 documents per query.
 - **Search methods:** exact search, HNSW, and IVF-Flat.
-- HNSW and IVF-Flat were calibrated to almost the same Recall@200:
+- HNSW and IVF-Flat had similar agreement with exact Recall@200 on calibration queries:
   - HNSW: **0.956**
   - IVF-Flat: **0.962**
-- Even at this similar recall, they did not return the same top-200 candidates.
-- When 20 candidate positions were selected per query, the selected pairs shared with exact search were only:
-  - HNSW: **44.9%**
-  - IVF-Flat: **48.1%**
-- This is only a sanity test; it does **not** yet show that final retriever quality changes.
-- But it gives a useful reason to run the controlled post-training experiment:
-  - ANCE shows that the negatives used for training matter;
-  - our sanity test shows that different ANN methods can produce different negatives even at similar retrieval recall.
+- Yet HNSW and IVF top-200 candidate sets had Jaccard **0.917**.
+- With the same fixed 20-passage rank-based selection rule, the HNSW and IVF selected pools shared only **43.44%** of passage identities, i.e. **8.688 out of 20 passages/query on average**.
+- This completed sanity test did **not** use a cross-encoder/reward model; it used qrel positives plus selected unlabelled passages in an ANCE-style pairwise training run.
+- The trained branches ended at different MRR@10 values, but all degraded relative to the already-strong untouched checkpoint and the run used only one seed. Therefore these numbers are motivation evidence, not a claim of ANN superiority or statistical significance.
+- The useful observation is narrower: **similar aggregate ANN recall can conceal substantially different query-passage identities entering a fixed limited-budget selection step.**
+- This motivates the intended next question: whether those different selected pairs receive different relevance/reward feedback and consequently change retriever post-training.
 
 - The specific gap we want to test is:
   - **when all other post-training choices are fixed, does the ANN/search method used for candidate generation change the final retriever?**

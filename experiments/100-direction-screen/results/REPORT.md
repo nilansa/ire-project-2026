@@ -11,7 +11,7 @@ This is a broad **sanity screen**, not a publication claim. It compares 100 prac
 - Feedback budget: 12 pairs/query on average; one known positive/query is fixed outside the feedback budget.
 - Student: one global logistic retrieval scorer over lexical, semantic, character, title, coverage, rank and disagreement signals; interpolation with the untouched retriever is tuned on validation queries.
 - Feedback oracle: relevance judgments are revealed **only after** a pair is selected. No selector sees the hidden label.
-- Wall-clock runtime: 2.4 minutes.
+- Wall-clock runtime: 2.7 minutes.
 
 ## Evaluation of the submitted plan
 
@@ -23,11 +23,11 @@ The screen below treats ANN choice as one component inside a larger data-selecti
 
 | Rank | Direction | Mean NDCG@10 | Δ vs standard top-candidate labeling | Worst-dataset Δ | Win rate | Positive yield | Semantic diversity |
 |---:|---|---:|---:|---:|---:|---:|---:|
-| 1 | Disagreement-adaptive budget + Uniform rank coverage | 0.3469 | +0.0047 | +0.0036 | 50% | 0.3% | 0.666 |
-| 2 | Topic-balanced budget + Uncertainty–diversity MMR | 0.3439 | +0.0016 | -0.0017 | 83% | 0.2% | 0.807 |
-| 3 | Uniform per-query budget + Uncertainty–diversity MMR | 0.3435 | +0.0012 | -0.0022 | 83% | 0.2% | 0.805 |
-| 4 | Uniform per-query budget + Relevance–diversity MMR | 0.3446 | +0.0024 | +0.0004 | 50% | 0.5% | 0.745 |
-| 5 | Topic-balanced budget + Lexical-first selection | 0.3441 | +0.0019 | +0.0014 | 50% | 0.8% | 0.580 |
+| 1 | Difficulty-adaptive budget + Feature-space leverage | 0.5423 | +0.0009 | -0.0002 | 67% | 3.5% | 0.757 |
+| 2 | Uniform per-query budget + Uncertainty–diversity MMR | 0.5412 | -0.0002 | -0.0022 | 50% | 1.6% | 0.764 |
+| 3 | Disagreement-adaptive budget + Hard-negative proxy | 0.5413 | -0.0001 | -0.0008 | 33% | 0.9% | 0.719 |
+| 4 | Disagreement-adaptive budget + Uniform rank coverage | 0.5414 | -0.0000 | -0.0058 | 50% | 2.4% | 0.672 |
+| 5 | Topic-balanced budget + Uncertainty–diversity MMR | 0.5397 | -0.0017 | -0.0018 | 50% | 1.7% | 0.766 |
 
 ### How to interpret the top five
 
@@ -37,113 +37,113 @@ Promote a direction only when it is not merely high on the mean: it should be no
 
 | Dataset | Untouched NDCG@10 | Untouched MRR@10 | Untouched R@100 | Cheap prior NDCG@10 | Candidate relevance recall |
 |---|---:|---:|---:|---:|---:|
-| cranfield | 0.0162 | 0.0263 | 0.1087 | 0.0007 | 0.0999 |
+| cranfield | 0.3980 | 0.5265 | 0.7530 | 0.0000 | 0.8387 |
 | scifact | 0.6719 | 0.6250 | 0.9322 | 0.1559 | 0.9390 |
 
 ## All 100 directions
 
 | Rank | ID | Direction | Mean NDCG@10 | Δ top-candidate control | Worst-dataset Δ | Win rate | Positive yield | Diversity |
 |---:|---|---|---:|---:|---:|---:|---:|---:|
-| 1 | `disagreement__uniform_rank` | Disagreement-adaptive budget + Uniform rank coverage | 0.3469 | +0.0047 | +0.0036 | 50% | 0.3% | 0.666 |
-| 2 | `topic_balanced__mmr_uncertainty` | Topic-balanced budget + Uncertainty–diversity MMR | 0.3439 | +0.0016 | -0.0017 | 83% | 0.2% | 0.807 |
-| 3 | `uniform__mmr_uncertainty` | Uniform per-query budget + Uncertainty–diversity MMR | 0.3435 | +0.0012 | -0.0022 | 83% | 0.2% | 0.805 |
-| 4 | `uniform__mmr_relevance` | Uniform per-query budget + Relevance–diversity MMR | 0.3446 | +0.0024 | +0.0004 | 50% | 0.5% | 0.745 |
-| 5 | `topic_balanced__top_bm25` | Topic-balanced budget + Lexical-first selection | 0.3441 | +0.0019 | +0.0014 | 50% | 0.8% | 0.580 |
-| 6 | `difficulty__false_positive` | Difficulty-adaptive budget + Likely false-positive hunting | 0.3466 | +0.0044 | -0.0021 | 33% | 0.3% | 0.613 |
-| 7 | `disagreement__mmr_relevance` | Disagreement-adaptive budget + Relevance–diversity MMR | 0.3453 | +0.0030 | -0.0011 | 33% | 0.4% | 0.742 |
-| 8 | `topic_balanced__retriever_disagreement` | Topic-balanced budget + Retriever disagreement | 0.3421 | -0.0001 | -0.0004 | 50% | 0.5% | 0.506 |
-| 9 | `topic_balanced__top_base` | Topic-balanced budget + Top current-retriever candidates | 0.3422 | -0.0001 | -0.0010 | 50% | 0.8% | 0.524 |
-| 10 | `uniform__leverage` | Uniform per-query budget + Feature-space leverage | 0.3423 | +0.0001 | -0.0033 | 50% | 0.4% | 0.757 |
-| 11 | `uniform__uniform_rank` | Uniform per-query budget + Uniform rank coverage | 0.3433 | +0.0010 | -0.0026 | 33% | 0.4% | 0.674 |
-| 12 | `disagreement__leverage` | Disagreement-adaptive budget + Feature-space leverage | 0.3409 | -0.0014 | -0.0019 | 50% | 0.3% | 0.760 |
-| 13 | `disagreement__top_bm25` | Disagreement-adaptive budget + Lexical-first selection | 0.3424 | +0.0001 | -0.0015 | 33% | 0.7% | 0.580 |
-| 14 | `uniform__retriever_disagreement` | Uniform per-query budget + Retriever disagreement | 0.3410 | -0.0013 | -0.0026 | 50% | 0.5% | 0.505 |
-| 15 | `disagreement__retriever_disagreement` | Disagreement-adaptive budget + Retriever disagreement | 0.3408 | -0.0015 | -0.0031 | 50% | 0.4% | 0.503 |
-| 16 | `uniform__top_bm25` | Uniform per-query budget + Lexical-first selection | 0.3426 | +0.0004 | -0.0035 | 33% | 0.8% | 0.586 |
-| 17 | `difficulty__d_optimal` | Difficulty-adaptive budget + D-optimal experimental design | 0.3405 | -0.0018 | -0.0023 | 50% | 0.4% | 0.746 |
-| 18 | `topic_balanced__coverage` | Topic-balanced budget + Query-term coverage | 0.3426 | +0.0003 | -0.0036 | 33% | 0.7% | 0.577 |
-| 19 | `difficulty__leverage` | Difficulty-adaptive budget + Feature-space leverage | 0.3406 | -0.0017 | -0.0032 | 50% | 0.3% | 0.757 |
-| 20 | `difficulty__top_base` | Difficulty-adaptive budget + Top current-retriever candidates | 0.3421 | -0.0002 | -0.0028 | 33% | 0.8% | 0.528 |
-| 21 | `topic_balanced__leverage` | Topic-balanced budget + Feature-space leverage | 0.3401 | -0.0021 | -0.0022 | 50% | 0.4% | 0.754 |
-| 22 | `difficulty__retriever_disagreement` | Difficulty-adaptive budget + Retriever disagreement | 0.3405 | -0.0017 | -0.0035 | 50% | 0.4% | 0.506 |
-| 23 | `disagreement__top_base` | Disagreement-adaptive budget + Top current-retriever candidates | 0.3418 | -0.0004 | -0.0026 | 33% | 0.8% | 0.525 |
-| 24 | `disagreement__hard_negative` | Disagreement-adaptive budget + Hard-negative proxy | 0.3412 | -0.0011 | -0.0013 | 33% | 0.3% | 0.584 |
-| 25 | `topic_balanced__mmr_relevance` | Topic-balanced budget + Relevance–diversity MMR | 0.3427 | +0.0005 | -0.0011 | 17% | 0.5% | 0.744 |
-| 26 | `topic_balanced__uniform_rank` | Topic-balanced budget + Uniform rank coverage | 0.3409 | -0.0013 | -0.0025 | 33% | 0.4% | 0.674 |
-| 27 | `difficulty__rrf_consensus` | Difficulty-adaptive budget + Multi-retriever consensus | 0.3405 | -0.0018 | -0.0033 | 33% | 0.8% | 0.519 |
-| 28 | `difficulty__mmr_relevance` | Difficulty-adaptive budget + Relevance–diversity MMR | 0.3404 | -0.0019 | -0.0031 | 33% | 0.5% | 0.744 |
-| 29 | `topic_balanced__top_char` | Topic-balanced budget + Character-robust selection | 0.3402 | -0.0021 | -0.0029 | 33% | 0.8% | 0.572 |
-| 30 | `uniform__top_base` | Uniform per-query budget + Top current-retriever candidates | 0.3423 | +0.0000 | +0.0000 | 0% | 0.8% | 0.528 |
-| 31 | `uniform__hard_negative` | Uniform per-query budget + Hard-negative proxy | 0.3413 | -0.0009 | -0.0029 | 17% | 0.3% | 0.588 |
-| 32 | `topic_balanced__false_negative` | Topic-balanced budget + Likely false-negative hunting | 0.3394 | -0.0028 | -0.0035 | 33% | 0.5% | 0.699 |
-| 33 | `difficulty__cluster_representatives` | Difficulty-adaptive budget + Candidate-cluster representatives | 0.3396 | -0.0027 | -0.0042 | 33% | 0.2% | 0.728 |
-| 34 | `disagreement__top_char` | Disagreement-adaptive budget + Character-robust selection | 0.3395 | -0.0027 | -0.0042 | 33% | 0.8% | 0.571 |
-| 35 | `difficulty__uniform_rank` | Difficulty-adaptive budget + Uniform rank coverage | 0.3380 | -0.0042 | -0.0049 | 50% | 0.3% | 0.673 |
-| 36 | `disagreement__rrf_consensus` | Disagreement-adaptive budget + Multi-retriever consensus | 0.3392 | -0.0030 | -0.0055 | 33% | 0.7% | 0.515 |
-| 37 | `uniform__cluster_representatives` | Uniform per-query budget + Candidate-cluster representatives | 0.3385 | -0.0038 | -0.0042 | 33% | 0.3% | 0.727 |
-| 38 | `topic_balanced__rank_strata` | Topic-balanced budget + Rank-stratified sampling | 0.3386 | -0.0037 | -0.0050 | 33% | 0.3% | 0.662 |
-| 39 | `topic_balanced__rrf_consensus` | Topic-balanced budget + Multi-retriever consensus | 0.3385 | -0.0038 | -0.0050 | 33% | 0.8% | 0.513 |
-| 40 | `disagreement__d_optimal` | Disagreement-adaptive budget + D-optimal experimental design | 0.3385 | -0.0037 | -0.0052 | 33% | 0.3% | 0.746 |
-| 41 | `disagreement__head_tail` | Disagreement-adaptive budget + Head–tail mixture | 0.3385 | -0.0038 | -0.0056 | 33% | 0.4% | 0.694 |
-| 42 | `uniform__d_optimal` | Uniform per-query budget + D-optimal experimental design | 0.3384 | -0.0039 | -0.0055 | 33% | 0.4% | 0.745 |
-| 43 | `uniform__rank_strata` | Uniform per-query budget + Rank-stratified sampling | 0.3383 | -0.0040 | -0.0055 | 33% | 0.3% | 0.660 |
-| 44 | `disagreement__mmr_uncertainty` | Disagreement-adaptive budget + Uncertainty–diversity MMR | 0.3384 | -0.0038 | -0.0124 | 50% | 0.2% | 0.804 |
-| 45 | `topic_balanced__hard_negative` | Topic-balanced budget + Hard-negative proxy | 0.3396 | -0.0026 | -0.0030 | 0% | 0.3% | 0.586 |
-| 46 | `disagreement__top_title` | Disagreement-adaptive budget + Title-focused selection | 0.3378 | -0.0045 | -0.0076 | 33% | 0.5% | 0.628 |
-| 47 | `uniform__farthest_first` | Uniform per-query budget + Semantic k-center coverage | 0.3368 | -0.0055 | -0.0098 | 50% | 0.1% | 0.896 |
-| 48 | `disagreement__center_outlier_mix` | Disagreement-adaptive budget + Typical–outlier mixture | 0.3383 | -0.0040 | -0.0046 | 17% | 0.4% | 0.750 |
-| 49 | `topic_balanced__farthest_first` | Topic-balanced budget + Semantic k-center coverage | 0.3366 | -0.0056 | -0.0095 | 50% | 0.1% | 0.896 |
-| 50 | `uniform__portfolio` | Uniform per-query budget + Diversified policy portfolio | 0.3381 | -0.0042 | -0.0042 | 17% | 0.5% | 0.688 |
-| 51 | `topic_balanced__top_title` | Topic-balanced budget + Title-focused selection | 0.3376 | -0.0047 | -0.0075 | 33% | 0.5% | 0.632 |
-| 52 | `disagreement__false_positive` | Disagreement-adaptive budget + Likely false-positive hunting | 0.3395 | -0.0027 | -0.0040 | 0% | 0.3% | 0.609 |
-| 53 | `difficulty__farthest_first` | Difficulty-adaptive budget + Semantic k-center coverage | 0.3365 | -0.0058 | -0.0099 | 50% | 0.1% | 0.896 |
-| 54 | `difficulty__random` | Difficulty-adaptive budget + Random exploration | 0.3368 | -0.0055 | -0.0062 | 33% | 0.2% | 0.729 |
-| 55 | `uniform__top_title` | Uniform per-query budget + Title-focused selection | 0.3371 | -0.0051 | -0.0075 | 33% | 0.5% | 0.633 |
-| 56 | `difficulty__top_char` | Difficulty-adaptive budget + Character-robust selection | 0.3382 | -0.0040 | -0.0059 | 17% | 0.8% | 0.575 |
-| 57 | `uniform__rrf_consensus` | Uniform per-query budget + Multi-retriever consensus | 0.3370 | -0.0053 | -0.0074 | 33% | 0.8% | 0.518 |
-| 58 | `uniform__false_positive` | Uniform per-query budget + Likely false-positive hunting | 0.3391 | -0.0032 | -0.0040 | 0% | 0.3% | 0.614 |
-| 59 | `topic_balanced__random` | Topic-balanced budget + Random exploration | 0.3366 | -0.0057 | -0.0066 | 33% | 0.2% | 0.728 |
-| 60 | `difficulty__mmr_uncertainty` | Difficulty-adaptive budget + Uncertainty–diversity MMR | 0.3359 | -0.0064 | -0.0142 | 67% | 0.2% | 0.804 |
-| 61 | `difficulty__hard_negative` | Difficulty-adaptive budget + Hard-negative proxy | 0.3390 | -0.0033 | -0.0041 | 0% | 0.3% | 0.590 |
-| 62 | `topic_balanced__d_optimal` | Topic-balanced budget + D-optimal experimental design | 0.3370 | -0.0052 | -0.0081 | 33% | 0.4% | 0.746 |
-| 63 | `topic_balanced__false_positive` | Topic-balanced budget + Likely false-positive hunting | 0.3387 | -0.0036 | -0.0041 | 0% | 0.3% | 0.611 |
-| 64 | `disagreement__random` | Disagreement-adaptive budget + Random exploration | 0.3368 | -0.0055 | -0.0086 | 33% | 0.2% | 0.727 |
-| 65 | `uniform__false_negative` | Uniform per-query budget + Likely false-negative hunting | 0.3373 | -0.0049 | -0.0064 | 17% | 0.6% | 0.700 |
-| 66 | `topic_balanced__uncertainty` | Topic-balanced budget + Current-model uncertainty | 0.3362 | -0.0061 | -0.0088 | 33% | 0.2% | 0.705 |
-| 67 | `difficulty__portfolio` | Difficulty-adaptive budget + Diversified policy portfolio | 0.3361 | -0.0061 | -0.0089 | 33% | 0.5% | 0.684 |
-| 68 | `difficulty__false_negative` | Difficulty-adaptive budget + Likely false-negative hunting | 0.3370 | -0.0052 | -0.0070 | 17% | 0.5% | 0.702 |
-| 69 | `uniform__random` | Uniform per-query budget + Random exploration | 0.3352 | -0.0070 | -0.0078 | 33% | 0.2% | 0.729 |
-| 70 | `difficulty__top_bm25` | Difficulty-adaptive budget + Lexical-first selection | 0.3369 | -0.0054 | -0.0093 | 17% | 0.8% | 0.587 |
-| 71 | `difficulty__center_outlier_mix` | Difficulty-adaptive budget + Typical–outlier mixture | 0.3372 | -0.0051 | -0.0061 | 0% | 0.5% | 0.750 |
-| 72 | `disagreement__rank_strata` | Disagreement-adaptive budget + Rank-stratified sampling | 0.3358 | -0.0065 | -0.0070 | 17% | 0.3% | 0.654 |
-| 73 | `uniform__center_outlier_mix` | Uniform per-query budget + Typical–outlier mixture | 0.3369 | -0.0053 | -0.0057 | 0% | 0.5% | 0.743 |
-| 74 | `disagreement__portfolio` | Disagreement-adaptive budget + Diversified policy portfolio | 0.3356 | -0.0067 | -0.0118 | 33% | 0.4% | 0.685 |
-| 75 | `disagreement__farthest_first` | Disagreement-adaptive budget + Semantic k-center coverage | 0.3346 | -0.0077 | -0.0139 | 50% | 0.0% | 0.896 |
-| 76 | `difficulty__top_title` | Difficulty-adaptive budget + Title-focused selection | 0.3348 | -0.0074 | -0.0102 | 33% | 0.5% | 0.637 |
-| 77 | `uniform__uncertainty` | Uniform per-query budget + Current-model uncertainty | 0.3350 | -0.0073 | -0.0111 | 33% | 0.2% | 0.705 |
-| 78 | `disagreement__uncertainty` | Disagreement-adaptive budget + Current-model uncertainty | 0.3350 | -0.0073 | -0.0112 | 33% | 0.2% | 0.704 |
-| 79 | `difficulty__uncertainty` | Difficulty-adaptive budget + Current-model uncertainty | 0.3349 | -0.0074 | -0.0114 | 33% | 0.2% | 0.704 |
-| 80 | `difficulty__head_tail` | Difficulty-adaptive budget + Head–tail mixture | 0.3347 | -0.0076 | -0.0118 | 33% | 0.5% | 0.694 |
-| 81 | `uniform__coverage` | Uniform per-query budget + Query-term coverage | 0.3361 | -0.0062 | -0.0089 | 0% | 0.7% | 0.579 |
-| 82 | `topic_balanced__cluster_representatives` | Topic-balanced budget + Candidate-cluster representatives | 0.3350 | -0.0073 | -0.0111 | 17% | 0.4% | 0.718 |
-| 83 | `disagreement__false_negative` | Disagreement-adaptive budget + Likely false-negative hunting | 0.3339 | -0.0083 | -0.0132 | 33% | 0.5% | 0.699 |
-| 84 | `topic_balanced__portfolio` | Topic-balanced budget + Diversified policy portfolio | 0.3343 | -0.0079 | -0.0117 | 17% | 0.5% | 0.682 |
-| 85 | `uniform__top_char` | Uniform per-query budget + Character-robust selection | 0.3332 | -0.0091 | -0.0109 | 17% | 0.8% | 0.577 |
-| 86 | `topic_balanced__center_outlier_mix` | Topic-balanced budget + Typical–outlier mixture | 0.3335 | -0.0088 | -0.0127 | 17% | 0.4% | 0.753 |
-| 87 | `disagreement__committee` | Disagreement-adaptive budget + Bootstrap committee disagreement | 0.3326 | -0.0097 | -0.0159 | 33% | 0.1% | 0.674 |
-| 88 | `difficulty__rank_strata` | Difficulty-adaptive budget + Rank-stratified sampling | 0.3330 | -0.0093 | -0.0129 | 17% | 0.3% | 0.656 |
-| 89 | `disagreement__top_lsa` | Disagreement-adaptive budget + Semantic-first selection | 0.3334 | -0.0088 | -0.0153 | 17% | 0.6% | 0.374 |
-| 90 | `topic_balanced__top_lsa` | Topic-balanced budget + Semantic-first selection | 0.3333 | -0.0090 | -0.0152 | 17% | 0.7% | 0.373 |
-| 91 | `uniform__top_lsa` | Uniform per-query budget + Semantic-first selection | 0.3338 | -0.0085 | -0.0130 | 0% | 0.7% | 0.376 |
-| 92 | `difficulty__coverage` | Difficulty-adaptive budget + Query-term coverage | 0.3342 | -0.0081 | -0.0191 | 17% | 0.7% | 0.579 |
-| 93 | `difficulty__top_lsa` | Difficulty-adaptive budget + Semantic-first selection | 0.3332 | -0.0091 | -0.0149 | 0% | 0.7% | 0.377 |
-| 94 | `uniform__head_tail` | Uniform per-query budget + Head–tail mixture | 0.3309 | -0.0113 | -0.0193 | 33% | 0.5% | 0.693 |
-| 95 | `difficulty__committee` | Difficulty-adaptive budget + Bootstrap committee disagreement | 0.3309 | -0.0114 | -0.0194 | 33% | 0.2% | 0.673 |
-| 96 | `uniform__committee` | Uniform per-query budget + Bootstrap committee disagreement | 0.3306 | -0.0117 | -0.0199 | 33% | 0.2% | 0.674 |
-| 97 | `disagreement__cluster_representatives` | Disagreement-adaptive budget + Candidate-cluster representatives | 0.3311 | -0.0112 | -0.0174 | 17% | 0.2% | 0.730 |
-| 98 | `topic_balanced__committee` | Topic-balanced budget + Bootstrap committee disagreement | 0.3299 | -0.0123 | -0.0212 | 33% | 0.2% | 0.671 |
-| 99 | `disagreement__coverage` | Disagreement-adaptive budget + Query-term coverage | 0.3303 | -0.0120 | -0.0213 | 0% | 0.7% | 0.578 |
-| 100 | `topic_balanced__head_tail` | Topic-balanced budget + Head–tail mixture | 0.3269 | -0.0153 | -0.0274 | 33% | 0.5% | 0.695 |
+| 1 | `difficulty__leverage` | Difficulty-adaptive budget + Feature-space leverage | 0.5423 | +0.0009 | -0.0002 | 67% | 3.5% | 0.757 |
+| 2 | `uniform__mmr_uncertainty` | Uniform per-query budget + Uncertainty–diversity MMR | 0.5412 | -0.0002 | -0.0022 | 50% | 1.6% | 0.764 |
+| 3 | `disagreement__hard_negative` | Disagreement-adaptive budget + Hard-negative proxy | 0.5413 | -0.0001 | -0.0008 | 33% | 0.9% | 0.719 |
+| 4 | `disagreement__uniform_rank` | Disagreement-adaptive budget + Uniform rank coverage | 0.5414 | -0.0000 | -0.0058 | 50% | 2.4% | 0.672 |
+| 5 | `topic_balanced__mmr_uncertainty` | Topic-balanced budget + Uncertainty–diversity MMR | 0.5397 | -0.0017 | -0.0018 | 50% | 1.7% | 0.766 |
+| 6 | `uniform__leverage` | Uniform per-query budget + Feature-space leverage | 0.5407 | -0.0007 | -0.0048 | 50% | 3.7% | 0.758 |
+| 7 | `uniform__mmr_relevance` | Uniform per-query budget + Relevance–diversity MMR | 0.5405 | -0.0009 | -0.0062 | 50% | 4.4% | 0.753 |
+| 8 | `difficulty__d_optimal` | Difficulty-adaptive budget + D-optimal experimental design | 0.5392 | -0.0022 | -0.0033 | 50% | 3.2% | 0.747 |
+| 9 | `disagreement__top_base` | Disagreement-adaptive budget + Top current-retriever candidates | 0.5407 | -0.0007 | -0.0031 | 33% | 8.5% | 0.524 |
+| 10 | `disagreement__mmr_relevance` | Disagreement-adaptive budget + Relevance–diversity MMR | 0.5417 | +0.0003 | -0.0066 | 33% | 4.1% | 0.751 |
+| 11 | `topic_balanced__uniform_rank` | Topic-balanced budget + Uniform rank coverage | 0.5400 | -0.0014 | -0.0027 | 33% | 2.4% | 0.677 |
+| 12 | `uniform__top_base` | Uniform per-query budget + Top current-retriever candidates | 0.5414 | +0.0000 | +0.0000 | 0% | 8.8% | 0.530 |
+| 13 | `topic_balanced__mmr_relevance` | Topic-balanced budget + Relevance–diversity MMR | 0.5398 | -0.0016 | -0.0053 | 33% | 4.5% | 0.751 |
+| 14 | `uniform__portfolio` | Uniform per-query budget + Diversified policy portfolio | 0.5389 | -0.0026 | -0.0041 | 33% | 5.4% | 0.667 |
+| 15 | `difficulty__mmr_relevance` | Difficulty-adaptive budget + Relevance–diversity MMR | 0.5375 | -0.0040 | -0.0049 | 50% | 4.4% | 0.753 |
+| 16 | `difficulty__random` | Difficulty-adaptive budget + Random exploration | 0.5374 | -0.0040 | -0.0048 | 50% | 1.7% | 0.727 |
+| 17 | `topic_balanced__leverage` | Topic-balanced budget + Feature-space leverage | 0.5376 | -0.0038 | -0.0055 | 50% | 3.7% | 0.756 |
+| 18 | `difficulty__cluster_representatives` | Difficulty-adaptive budget + Candidate-cluster representatives | 0.5378 | -0.0036 | -0.0061 | 50% | 2.4% | 0.728 |
+| 19 | `topic_balanced__top_base` | Topic-balanced budget + Top current-retriever candidates | 0.5386 | -0.0028 | -0.0046 | 33% | 8.9% | 0.525 |
+| 20 | `uniform__uniform_rank` | Uniform per-query budget + Uniform rank coverage | 0.5397 | -0.0017 | -0.0079 | 33% | 2.4% | 0.677 |
+| 21 | `disagreement__leverage` | Disagreement-adaptive budget + Feature-space leverage | 0.5375 | -0.0039 | -0.0069 | 50% | 3.4% | 0.760 |
+| 22 | `difficulty__false_positive` | Difficulty-adaptive budget + Likely false-positive hunting | 0.5381 | -0.0033 | -0.0045 | 33% | 0.4% | 0.764 |
+| 23 | `difficulty__uniform_rank` | Difficulty-adaptive budget + Uniform rank coverage | 0.5362 | -0.0052 | -0.0056 | 50% | 2.4% | 0.674 |
+| 24 | `topic_balanced__rank_strata` | Topic-balanced budget + Rank-stratified sampling | 0.5376 | -0.0039 | -0.0050 | 33% | 2.6% | 0.626 |
+| 25 | `uniform__d_optimal` | Uniform per-query budget + D-optimal experimental design | 0.5373 | -0.0041 | -0.0055 | 33% | 3.5% | 0.746 |
+| 26 | `disagreement__rrf_consensus` | Disagreement-adaptive budget + Multi-retriever consensus | 0.5372 | -0.0042 | -0.0055 | 33% | 8.2% | 0.518 |
+| 27 | `topic_balanced__top_bm25` | Topic-balanced budget + Lexical-first selection | 0.5380 | -0.0034 | -0.0083 | 33% | 8.0% | 0.587 |
+| 28 | `topic_balanced__hard_negative` | Topic-balanced budget + Hard-negative proxy | 0.5391 | -0.0024 | -0.0030 | 0% | 1.0% | 0.720 |
+| 29 | `difficulty__rrf_consensus` | Difficulty-adaptive budget + Multi-retriever consensus | 0.5376 | -0.0038 | -0.0043 | 17% | 8.3% | 0.517 |
+| 30 | `difficulty__top_base` | Difficulty-adaptive budget + Top current-retriever candidates | 0.5377 | -0.0038 | -0.0100 | 33% | 8.6% | 0.524 |
+| 31 | `uniform__cluster_representatives` | Uniform per-query budget + Candidate-cluster representatives | 0.5354 | -0.0061 | -0.0087 | 50% | 2.8% | 0.727 |
+| 32 | `disagreement__d_optimal` | Disagreement-adaptive budget + D-optimal experimental design | 0.5358 | -0.0056 | -0.0061 | 33% | 3.2% | 0.747 |
+| 33 | `disagreement__false_positive` | Disagreement-adaptive budget + Likely false-positive hunting | 0.5370 | -0.0044 | -0.0048 | 17% | 0.4% | 0.765 |
+| 34 | `uniform__rank_strata` | Uniform per-query budget + Rank-stratified sampling | 0.5372 | -0.0042 | -0.0055 | 17% | 2.8% | 0.624 |
+| 35 | `topic_balanced__rrf_consensus` | Topic-balanced budget + Multi-retriever consensus | 0.5369 | -0.0045 | -0.0050 | 17% | 8.7% | 0.518 |
+| 36 | `uniform__random` | Uniform per-query budget + Random exploration | 0.5345 | -0.0069 | -0.0078 | 50% | 1.8% | 0.727 |
+| 37 | `disagreement__rank_strata` | Disagreement-adaptive budget + Rank-stratified sampling | 0.5358 | -0.0056 | -0.0070 | 33% | 2.7% | 0.617 |
+| 38 | `topic_balanced__random` | Topic-balanced budget + Random exploration | 0.5342 | -0.0072 | -0.0079 | 50% | 1.9% | 0.728 |
+| 39 | `difficulty__hard_negative` | Difficulty-adaptive budget + Hard-negative proxy | 0.5378 | -0.0036 | -0.0041 | 0% | 0.9% | 0.721 |
+| 40 | `disagreement__uncertainty` | Disagreement-adaptive budget + Current-model uncertainty | 0.5368 | -0.0046 | -0.0112 | 33% | 2.0% | 0.628 |
+| 41 | `uniform__farthest_first` | Uniform per-query budget + Semantic k-center coverage | 0.5360 | -0.0054 | -0.0098 | 33% | 0.3% | 0.895 |
+| 42 | `uniform__rrf_consensus` | Uniform per-query budget + Multi-retriever consensus | 0.5366 | -0.0049 | -0.0074 | 17% | 8.7% | 0.522 |
+| 43 | `disagreement__random` | Disagreement-adaptive budget + Random exploration | 0.5352 | -0.0062 | -0.0086 | 33% | 1.7% | 0.727 |
+| 44 | `difficulty__uncertainty` | Difficulty-adaptive budget + Current-model uncertainty | 0.5358 | -0.0056 | -0.0114 | 33% | 2.1% | 0.628 |
+| 45 | `topic_balanced__uncertainty` | Topic-balanced budget + Current-model uncertainty | 0.5347 | -0.0067 | -0.0088 | 33% | 2.1% | 0.630 |
+| 46 | `topic_balanced__d_optimal` | Topic-balanced budget + D-optimal experimental design | 0.5345 | -0.0070 | -0.0081 | 33% | 3.5% | 0.746 |
+| 47 | `topic_balanced__portfolio` | Topic-balanced budget + Diversified policy portfolio | 0.5356 | -0.0059 | -0.0117 | 33% | 5.4% | 0.659 |
+| 48 | `uniform__uncertainty` | Uniform per-query budget + Current-model uncertainty | 0.5353 | -0.0062 | -0.0111 | 33% | 2.2% | 0.629 |
+| 49 | `uniform__retriever_disagreement` | Uniform per-query budget + Retriever disagreement | 0.5354 | -0.0061 | -0.0121 | 33% | 5.2% | 0.506 |
+| 50 | `difficulty__portfolio` | Difficulty-adaptive budget + Diversified policy portfolio | 0.5357 | -0.0057 | -0.0089 | 17% | 5.3% | 0.661 |
+| 51 | `difficulty__mmr_uncertainty` | Difficulty-adaptive budget + Uncertainty–diversity MMR | 0.5340 | -0.0074 | -0.0142 | 50% | 1.7% | 0.762 |
+| 52 | `disagreement__portfolio` | Disagreement-adaptive budget + Diversified policy portfolio | 0.5330 | -0.0084 | -0.0118 | 50% | 5.1% | 0.661 |
+| 53 | `difficulty__farthest_first` | Difficulty-adaptive budget + Semantic k-center coverage | 0.5339 | -0.0075 | -0.0099 | 33% | 0.4% | 0.894 |
+| 54 | `topic_balanced__false_positive` | Topic-balanced budget + Likely false-positive hunting | 0.5350 | -0.0064 | -0.0087 | 17% | 0.4% | 0.766 |
+| 55 | `topic_balanced__farthest_first` | Topic-balanced budget + Semantic k-center coverage | 0.5332 | -0.0082 | -0.0095 | 33% | 0.3% | 0.895 |
+| 56 | `disagreement__mmr_uncertainty` | Disagreement-adaptive budget + Uncertainty–diversity MMR | 0.5354 | -0.0060 | -0.0124 | 17% | 1.6% | 0.764 |
+| 57 | `disagreement__retriever_disagreement` | Disagreement-adaptive budget + Retriever disagreement | 0.5342 | -0.0072 | -0.0146 | 33% | 4.8% | 0.502 |
+| 58 | `uniform__hard_negative` | Uniform per-query budget + Hard-negative proxy | 0.5355 | -0.0059 | -0.0088 | 0% | 1.0% | 0.720 |
+| 59 | `difficulty__retriever_disagreement` | Difficulty-adaptive budget + Retriever disagreement | 0.5341 | -0.0073 | -0.0146 | 33% | 4.8% | 0.504 |
+| 60 | `difficulty__rank_strata` | Difficulty-adaptive budget + Rank-stratified sampling | 0.5328 | -0.0086 | -0.0129 | 33% | 2.7% | 0.620 |
+| 61 | `topic_balanced__cluster_representatives` | Topic-balanced budget + Candidate-cluster representatives | 0.5322 | -0.0093 | -0.0111 | 33% | 3.4% | 0.719 |
+| 62 | `uniform__false_positive` | Uniform per-query budget + Likely false-positive hunting | 0.5338 | -0.0076 | -0.0112 | 17% | 0.5% | 0.766 |
+| 63 | `topic_balanced__false_negative` | Topic-balanced budget + Likely false-negative hunting | 0.5341 | -0.0074 | -0.0125 | 17% | 3.3% | 0.634 |
+| 64 | `disagreement__center_outlier_mix` | Disagreement-adaptive budget + Typical–outlier mixture | 0.5333 | -0.0081 | -0.0128 | 17% | 2.3% | 0.751 |
+| 65 | `disagreement__head_tail` | Disagreement-adaptive budget + Head–tail mixture | 0.5326 | -0.0089 | -0.0121 | 17% | 5.4% | 0.701 |
+| 66 | `difficulty__top_bm25` | Difficulty-adaptive budget + Lexical-first selection | 0.5318 | -0.0096 | -0.0100 | 17% | 7.7% | 0.583 |
+| 67 | `difficulty__head_tail` | Difficulty-adaptive budget + Head–tail mixture | 0.5317 | -0.0097 | -0.0118 | 17% | 5.3% | 0.700 |
+| 68 | `disagreement__farthest_first` | Disagreement-adaptive budget + Semantic k-center coverage | 0.5306 | -0.0108 | -0.0139 | 33% | 0.2% | 0.895 |
+| 69 | `disagreement__top_title` | Disagreement-adaptive budget + Title-focused selection | 0.5315 | -0.0099 | -0.0122 | 17% | 5.3% | 0.637 |
+| 70 | `uniform__top_title` | Uniform per-query budget + Title-focused selection | 0.5315 | -0.0099 | -0.0124 | 17% | 5.5% | 0.641 |
+| 71 | `topic_balanced__top_title` | Topic-balanced budget + Title-focused selection | 0.5311 | -0.0103 | -0.0131 | 17% | 5.8% | 0.640 |
+| 72 | `uniform__top_bm25` | Uniform per-query budget + Lexical-first selection | 0.5325 | -0.0089 | -0.0222 | 33% | 8.0% | 0.589 |
+| 73 | `topic_balanced__retriever_disagreement` | Topic-balanced budget + Retriever disagreement | 0.5325 | -0.0090 | -0.0176 | 17% | 5.1% | 0.506 |
+| 74 | `disagreement__top_bm25` | Disagreement-adaptive budget + Lexical-first selection | 0.5318 | -0.0096 | -0.0208 | 33% | 7.7% | 0.584 |
+| 75 | `difficulty__top_title` | Difficulty-adaptive budget + Title-focused selection | 0.5299 | -0.0115 | -0.0128 | 17% | 5.3% | 0.639 |
+| 76 | `topic_balanced__center_outlier_mix` | Topic-balanced budget + Typical–outlier mixture | 0.5291 | -0.0123 | -0.0127 | 17% | 2.6% | 0.753 |
+| 77 | `disagreement__cluster_representatives` | Disagreement-adaptive budget + Candidate-cluster representatives | 0.5288 | -0.0126 | -0.0174 | 33% | 2.3% | 0.729 |
+| 78 | `uniform__head_tail` | Uniform per-query budget + Head–tail mixture | 0.5292 | -0.0122 | -0.0193 | 33% | 5.6% | 0.701 |
+| 79 | `uniform__false_negative` | Uniform per-query budget + Likely false-negative hunting | 0.5306 | -0.0108 | -0.0152 | 0% | 3.2% | 0.636 |
+| 80 | `uniform__center_outlier_mix` | Uniform per-query budget + Typical–outlier mixture | 0.5307 | -0.0107 | -0.0158 | 0% | 2.6% | 0.745 |
+| 81 | `topic_balanced__head_tail` | Topic-balanced budget + Head–tail mixture | 0.5297 | -0.0117 | -0.0274 | 50% | 5.6% | 0.700 |
+| 82 | `disagreement__committee` | Disagreement-adaptive budget + Bootstrap committee disagreement | 0.5289 | -0.0125 | -0.0159 | 17% | 1.8% | 0.664 |
+| 83 | `difficulty__top_char` | Difficulty-adaptive budget + Character-robust selection | 0.5292 | -0.0122 | -0.0184 | 17% | 7.9% | 0.576 |
+| 84 | `uniform__top_lsa` | Uniform per-query budget + Semantic-first selection | 0.5287 | -0.0127 | -0.0130 | 0% | 8.5% | 0.381 |
+| 85 | `disagreement__top_char` | Disagreement-adaptive budget + Character-robust selection | 0.5294 | -0.0120 | -0.0199 | 17% | 7.8% | 0.575 |
+| 86 | `difficulty__false_negative` | Difficulty-adaptive budget + Likely false-negative hunting | 0.5295 | -0.0119 | -0.0168 | 0% | 3.0% | 0.637 |
+| 87 | `difficulty__committee` | Difficulty-adaptive budget + Bootstrap committee disagreement | 0.5270 | -0.0144 | -0.0194 | 33% | 2.0% | 0.663 |
+| 88 | `uniform__committee` | Uniform per-query budget + Bootstrap committee disagreement | 0.5286 | -0.0128 | -0.0199 | 17% | 2.1% | 0.664 |
+| 89 | `topic_balanced__top_char` | Topic-balanced budget + Character-robust selection | 0.5290 | -0.0124 | -0.0220 | 17% | 8.1% | 0.581 |
+| 90 | `disagreement__false_negative` | Disagreement-adaptive budget + Likely false-negative hunting | 0.5269 | -0.0146 | -0.0159 | 17% | 2.9% | 0.635 |
+| 91 | `difficulty__center_outlier_mix` | Difficulty-adaptive budget + Typical–outlier mixture | 0.5292 | -0.0122 | -0.0183 | 0% | 2.4% | 0.751 |
+| 92 | `difficulty__top_lsa` | Difficulty-adaptive budget + Semantic-first selection | 0.5276 | -0.0138 | -0.0149 | 0% | 8.5% | 0.379 |
+| 93 | `topic_balanced__top_lsa` | Topic-balanced budget + Semantic-first selection | 0.5277 | -0.0137 | -0.0152 | 0% | 8.8% | 0.379 |
+| 94 | `topic_balanced__coverage` | Topic-balanced budget + Query-term coverage | 0.5282 | -0.0132 | -0.0228 | 17% | 7.2% | 0.577 |
+| 95 | `uniform__top_char` | Uniform per-query budget + Character-robust selection | 0.5271 | -0.0143 | -0.0213 | 17% | 7.8% | 0.581 |
+| 96 | `disagreement__top_lsa` | Disagreement-adaptive budget + Semantic-first selection | 0.5266 | -0.0148 | -0.0153 | 0% | 8.3% | 0.378 |
+| 97 | `topic_balanced__committee` | Topic-balanced budget + Bootstrap committee disagreement | 0.5263 | -0.0151 | -0.0212 | 17% | 2.1% | 0.663 |
+| 98 | `uniform__coverage` | Uniform per-query budget + Query-term coverage | 0.5273 | -0.0142 | -0.0195 | 0% | 7.1% | 0.581 |
+| 99 | `difficulty__coverage` | Difficulty-adaptive budget + Query-term coverage | 0.5216 | -0.0198 | -0.0205 | 0% | 7.0% | 0.577 |
+| 100 | `disagreement__coverage` | Disagreement-adaptive budget + Query-term coverage | 0.5199 | -0.0215 | -0.0217 | 0% | 6.8% | 0.579 |
 
 ## What has already been done versus what this adds
 

@@ -133,35 +133,43 @@ def load_cranfield(cache: Path) -> IRDataset:
     query_ids, query_texts = [], []
     for b in q_blocks:
         qid = _tag(b, "num")
-        text = _tag(b, "title")
+        qtext = _tag(b, "title")
         if qid:
             query_ids.append(qid)
-            query_texts.append(text)
+            query_texts.append(qtext)
 
     did_to_i = {x: i for i, x in enumerate(doc_ids)}
-    qid_to_i = {x: i for i, x in enumerate(query_ids)}
+    # Qrels topic t denotes the t-th query record, not sparse XML <num>.
+    if len(query_ids) != 225:
+        raise ValueError(f"Expected 225 Cranfield query records, found {len(query_ids)}")
     qrels: dict[int, set[int]] = defaultdict(set)
+    seen_topics: set[int] = set()
     for line in r_p.read_text(encoding="utf-8", errors="replace").splitlines():
-        p = line.split()
-        if len(p) >= 4 and p[0] in qid_to_i and p[2] in did_to_i:
-            try:
-                rel = float(p[3])
-            except ValueError:
-                continue
-            if rel > 0:
-                qrels[qid_to_i[p[0]]].add(did_to_i[p[2]])
-    keep = [i for i in range(len(query_ids)) if qrels.get(i)]
-    remap = {old: new for new, old in enumerate(keep)}
+        fields = line.split()
+        if len(fields) < 4 or fields[2] not in did_to_i:
+            continue
+        try:
+            topic = int(fields[0])
+            rel = float(fields[3])
+        except ValueError:
+            continue
+        qi = topic - 1
+        if not (0 <= qi < len(query_ids)):
+            raise ValueError(f"Out-of-range Cranfield qrels topic: {topic}")
+        seen_topics.add(topic)
+        if rel > 0:
+            qrels[qi].add(did_to_i[fields[2]])
+    if seen_topics != set(range(1, 226)) or any(not qrels.get(i) for i in range(225)):
+        raise ValueError("Cranfield qrels did not align to all 225 query records")
     return IRDataset(
         name="cranfield",
         doc_ids=doc_ids,
         doc_titles=titles,
         doc_texts=texts,
-        query_ids=[query_ids[i] for i in keep],
-        query_texts=[query_texts[i] for i in keep],
-        qrels={remap[i]: qrels[i] for i in keep},
+        query_ids=query_ids,
+        query_texts=query_texts,
+        qrels={i: qrels[i] for i in range(225)},
     )
-
 
 def load_scifact(cache: Path) -> IRDataset:
     url = "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip"

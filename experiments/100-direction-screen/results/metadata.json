@@ -160,7 +160,7 @@
       "hypothesis": "Equalize total feedback across query clusters, not raw query counts."
     }
   ],
-  "runtime_seconds": 144.55456566810608,
+  "runtime_seconds": 162.2471079826355,
   "python": "3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0]",
   "numpy": "1.26.4",
   "pandas": "2.2.3"

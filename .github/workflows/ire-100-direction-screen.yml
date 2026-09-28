@@ -32,7 +32,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Reconstruct and verify experiment
+      - name: Reconstruct and correct Cranfield loader
         shell: bash
         run: |
           set -euo pipefail
@@ -43,42 +43,43 @@ jobs:
             > experiments/100-direction-screen/ire_100_direction_screen.py
           echo "67feb32a0b86c4f32d4fecb96a1a74e65ba99a0d366a138f94be324f103850c7  experiments/100-direction-screen/ire_100_direction_screen.py" | sha256sum --check
 
-          # The first screen exposed a data-loader bug in the third-party
-          # Cranfield conversion: qrels topic IDs are ordinal query positions,
-          # while <num> retains sparse original IDs. Patch it before rerunning.
           python - <<'PY'
           from pathlib import Path
 
           path = Path("experiments/100-direction-screen/ire_100_direction_screen.py")
           text = path.read_text()
-          old = '''    did_to_i = {x: i for i, x in enumerate(doc_ids)}
-              qid_to_i = {x: i for i, x in enumerate(query_ids)}
-              qrels: dict[int, set[int]] = defaultdict(set)
-              for line in r_p.read_text(encoding="utf-8", errors="replace").splitlines():
-                  p = line.split()
-                  if len(p) >= 4 and p[0] in qid_to_i and p[2] in did_to_i:
-                      try:
-                          rel = float(p[3])
-                      except ValueError:
-                          continue
-                      if rel > 0:
-                          qrels[qid_to_i[p[0]]].add(did_to_i[p[2]])
-              keep = [i for i in range(len(query_ids)) if qrels.get(i)]
-              remap = {old: new for new, old in enumerate(keep)}
-              return IRDataset(
-                  name="cranfield",
-                  doc_ids=doc_ids,
-                  doc_titles=titles,
-                  doc_texts=texts,
-                  query_ids=[query_ids[i] for i in keep],
-                  query_texts=[query_texts[i] for i in keep],
-                  qrels={remap[i]: qrels[i] for i in keep},
-              )
-          '''.replace("          ", "")
-          new = '''    did_to_i = {x: i for i, x in enumerate(doc_ids)}
-              # Cranfield's qrels topics are 1-based ordinal positions of the
-              # 225 query records. The XML <num> fields retain sparse original
-              # IDs, so a direct ID join silently mislabels and drops queries.
+          start = text.index("def load_cranfield(cache: Path) -> IRDataset:")
+          end = text.index("\ndef load_scifact(cache: Path) -> IRDataset:")
+          fixed = r'''def load_cranfield(cache: Path) -> IRDataset:
+              base = "https://raw.githubusercontent.com/oussbenk/cranfield-trec-dataset/main"
+              docs_p = download(f"{base}/cran.all.1400.xml", cache / "cranfield" / "docs.xml")
+              q_p = download(f"{base}/cran.qry.xml", cache / "cranfield" / "queries.xml")
+              r_p = download(f"{base}/cranqrel.trec.txt", cache / "cranfield" / "qrels.txt")
+
+              docs_raw = docs_p.read_text(encoding="utf-8", errors="replace")
+              doc_blocks = re.findall(r"<doc>(.*?)</doc>", docs_raw, flags=re.I | re.S)
+              doc_ids, titles, texts = [], [], []
+              for b in doc_blocks:
+                  did = _tag(b, "docno")
+                  title = _tag(b, "title")
+                  body = _tag(b, "text")
+                  if did:
+                      doc_ids.append(did)
+                      titles.append(title)
+                      texts.append((title + " " + body).strip())
+
+              queries_raw = q_p.read_text(encoding="utf-8", errors="replace")
+              q_blocks = re.findall(r"<top>(.*?)</top>", queries_raw, flags=re.I | re.S)
+              query_ids, query_texts = [], []
+              for b in q_blocks:
+                  qid = _tag(b, "num")
+                  qtext = _tag(b, "title")
+                  if qid:
+                      query_ids.append(qid)
+                      query_texts.append(qtext)
+
+              did_to_i = {x: i for i, x in enumerate(doc_ids)}
+              # Qrels topic t denotes the t-th query record, not sparse XML <num>.
               if len(query_ids) != 225:
                   raise ValueError(f"Expected 225 Cranfield query records, found {len(query_ids)}")
               qrels: dict[int, set[int]] = defaultdict(set)
@@ -98,12 +99,8 @@ jobs:
                   seen_topics.add(topic)
                   if rel > 0:
                       qrels[qi].add(did_to_i[fields[2]])
-              keep = [i for i in range(len(query_ids)) if qrels.get(i)]
-              if len(keep) != 225 or seen_topics != set(range(1, 226)):
-                  raise ValueError(
-                      f"Cranfield qrels alignment failed: {len(keep)} judged queries, "
-                      f"topics {min(seen_topics, default=-1)}..{max(seen_topics, default=-1)}"
-                  )
+              if seen_topics != set(range(1, 226)) or any(not qrels.get(i) for i in range(225)):
+                  raise ValueError("Cranfield qrels did not align to all 225 query records")
               return IRDataset(
                   name="cranfield",
                   doc_ids=doc_ids,
@@ -111,12 +108,12 @@ jobs:
                   doc_texts=texts,
                   query_ids=query_ids,
                   query_texts=query_texts,
-                  qrels={i: qrels[i] for i in range(len(query_ids))},
+                  qrels={i: qrels[i] for i in range(225)},
               )
-          '''.replace("          ", "")
-          if old not in text:
-              raise SystemExit("Expected Cranfield loader block was not found")
-          path.write_text(text.replace(old, new))
+          '''
+          # Remove the workflow's indentation from the embedded function.
+          fixed = "\n".join(line[10:] if line.startswith("          ") else line for line in fixed.splitlines()) + "\n"
+          path.write_text(text[:start] + fixed + text[end:])
           PY
           python -m py_compile experiments/100-direction-screen/ire_100_direction_screen.py
 
@@ -140,7 +137,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ire-100-direction-screen-results-corrected
+          name: ire-100-direction-screen-results-corrected-v2
           path: |
             experiments/100-direction-screen/ire_100_direction_screen.py
             experiments/100-direction-screen/results

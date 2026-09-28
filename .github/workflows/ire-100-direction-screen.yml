@@ -42,6 +42,82 @@ jobs:
             | gzip --decompress \
             > experiments/100-direction-screen/ire_100_direction_screen.py
           echo "67feb32a0b86c4f32d4fecb96a1a74e65ba99a0d366a138f94be324f103850c7  experiments/100-direction-screen/ire_100_direction_screen.py" | sha256sum --check
+
+          # The first screen exposed a data-loader bug in the third-party
+          # Cranfield conversion: qrels topic IDs are ordinal query positions,
+          # while <num> retains sparse original IDs. Patch it before rerunning.
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("experiments/100-direction-screen/ire_100_direction_screen.py")
+          text = path.read_text()
+          old = '''    did_to_i = {x: i for i, x in enumerate(doc_ids)}
+              qid_to_i = {x: i for i, x in enumerate(query_ids)}
+              qrels: dict[int, set[int]] = defaultdict(set)
+              for line in r_p.read_text(encoding="utf-8", errors="replace").splitlines():
+                  p = line.split()
+                  if len(p) >= 4 and p[0] in qid_to_i and p[2] in did_to_i:
+                      try:
+                          rel = float(p[3])
+                      except ValueError:
+                          continue
+                      if rel > 0:
+                          qrels[qid_to_i[p[0]]].add(did_to_i[p[2]])
+              keep = [i for i in range(len(query_ids)) if qrels.get(i)]
+              remap = {old: new for new, old in enumerate(keep)}
+              return IRDataset(
+                  name="cranfield",
+                  doc_ids=doc_ids,
+                  doc_titles=titles,
+                  doc_texts=texts,
+                  query_ids=[query_ids[i] for i in keep],
+                  query_texts=[query_texts[i] for i in keep],
+                  qrels={remap[i]: qrels[i] for i in keep},
+              )
+          '''.replace("          ", "")
+          new = '''    did_to_i = {x: i for i, x in enumerate(doc_ids)}
+              # Cranfield's qrels topics are 1-based ordinal positions of the
+              # 225 query records. The XML <num> fields retain sparse original
+              # IDs, so a direct ID join silently mislabels and drops queries.
+              if len(query_ids) != 225:
+                  raise ValueError(f"Expected 225 Cranfield query records, found {len(query_ids)}")
+              qrels: dict[int, set[int]] = defaultdict(set)
+              seen_topics: set[int] = set()
+              for line in r_p.read_text(encoding="utf-8", errors="replace").splitlines():
+                  fields = line.split()
+                  if len(fields) < 4 or fields[2] not in did_to_i:
+                      continue
+                  try:
+                      topic = int(fields[0])
+                      rel = float(fields[3])
+                  except ValueError:
+                      continue
+                  qi = topic - 1
+                  if not (0 <= qi < len(query_ids)):
+                      raise ValueError(f"Out-of-range Cranfield qrels topic: {topic}")
+                  seen_topics.add(topic)
+                  if rel > 0:
+                      qrels[qi].add(did_to_i[fields[2]])
+              keep = [i for i in range(len(query_ids)) if qrels.get(i)]
+              if len(keep) != 225 or seen_topics != set(range(1, 226)):
+                  raise ValueError(
+                      f"Cranfield qrels alignment failed: {len(keep)} judged queries, "
+                      f"topics {min(seen_topics, default=-1)}..{max(seen_topics, default=-1)}"
+                  )
+              return IRDataset(
+                  name="cranfield",
+                  doc_ids=doc_ids,
+                  doc_titles=titles,
+                  doc_texts=texts,
+                  query_ids=query_ids,
+                  query_texts=query_texts,
+                  qrels={i: qrels[i] for i in range(len(query_ids))},
+              )
+          '''.replace("          ", "")
+          if old not in text:
+              raise SystemExit("Expected Cranfield loader block was not found")
+          path.write_text(text.replace(old, new))
+          PY
           python -m py_compile experiments/100-direction-screen/ire_100_direction_screen.py
 
       - name: Install pinned dependencies
@@ -52,6 +128,7 @@ jobs:
 
       - name: Run all 100 directions on two datasets and three splits
         run: |
+          rm -rf experiments/100-direction-screen/results
           python experiments/100-direction-screen/ire_100_direction_screen.py \
             --output experiments/100-direction-screen/results \
             --cache .cache/ire-100-direction-screen \
@@ -63,7 +140,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ire-100-direction-screen-results
+          name: ire-100-direction-screen-results-corrected
           path: |
             experiments/100-direction-screen/ire_100_direction_screen.py
             experiments/100-direction-screen/results
@@ -82,6 +159,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
           else
-            git commit -m "Add 100-direction empirical screen results"
+            git commit -m "Correct Cranfield alignment and rerun 100-direction screen"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi

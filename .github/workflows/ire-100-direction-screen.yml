@@ -1,0 +1,88 @@
+name: IRE 100-direction empirical screen
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/100-direction-screen-20260928
+    paths:
+      - .github/workflows/ire-100-direction-screen.yml
+
+permissions:
+  contents: write
+
+jobs:
+  screen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      OMP_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "2"
+      MKL_NUM_THREADS: "2"
+      NUMEXPR_NUM_THREADS: "2"
+      PYTHONHASHSEED: "0"
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Reconstruct and verify experiment
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p experiments/100-direction-screen
+          cat experiments/100-direction-screen/payload/part*.b64 \
+            | base64 --decode \
+            | gzip --decompress \
+            > experiments/100-direction-screen/ire_100_direction_screen.py
+          echo "67feb32a0b86c4f32d4fecb96a1a74e65ba99a0d366a138f94be324f103850c7  experiments/100-direction-screen/ire_100_direction_screen.py" | sha256sum --check
+          python -m py_compile experiments/100-direction-screen/ire_100_direction_screen.py
+
+      - name: Install pinned dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --only-binary=:all: \
+            numpy==1.26.4 pandas==2.2.3 scipy==1.13.1 scikit-learn==1.5.2
+
+      - name: Run all 100 directions on two datasets and three splits
+        run: |
+          python experiments/100-direction-screen/ire_100_direction_screen.py \
+            --output experiments/100-direction-screen/results \
+            --cache .cache/ire-100-direction-screen \
+            --datasets cranfield scifact \
+            --seeds 0 1 2 \
+            --budget 12
+
+      - name: Upload complete results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ire-100-direction-screen-results
+          path: |
+            experiments/100-direction-screen/ire_100_direction_screen.py
+            experiments/100-direction-screen/results
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Commit reproducible source and successful results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/100-direction-screen/ire_100_direction_screen.py \
+                  experiments/100-direction-screen/results
+          if git diff --cached --quiet; then
+            echo "No generated changes to commit."
+          else
+            git commit -m "Add 100-direction empirical screen results"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

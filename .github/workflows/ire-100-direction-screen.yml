@@ -111,8 +111,6 @@ jobs:
                   qrels={i: qrels[i] for i in range(225)},
               )
           '''
-          # Remove the workflow's indentation from the embedded function.
-          fixed = "\n".join(line[10:] if line.startswith("          ") else line for line in fixed.splitlines()) + "\n"
           path.write_text(text[:start] + fixed + text[end:])
           PY
           python -m py_compile experiments/100-direction-screen/ire_100_direction_screen.py
@@ -137,7 +135,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ire-100-direction-screen-results-corrected-v2
+          name: ire-100-direction-screen-results-corrected-v3
           path: |
             experiments/100-direction-screen/ire_100_direction_screen.py
             experiments/100-direction-screen/results

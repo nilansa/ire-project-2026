@@ -1,0 +1,167 @@
+{
+  "datasets": [
+    "cranfield",
+    "scifact"
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_directions": 100,
+  "n_runs": 600,
+  "per_query_budget": 12,
+  "selectors": [
+    {
+      "key": "random",
+      "title": "Random exploration",
+      "hypothesis": "A random but reproducible sample is a strong unbiased control."
+    },
+    {
+      "key": "top_base",
+      "title": "Top current-retriever candidates",
+      "hypothesis": "Exploit the current retriever's highest-scoring documents."
+    },
+    {
+      "key": "uniform_rank",
+      "title": "Uniform rank coverage",
+      "hypothesis": "Spread labels across the whole candidate ranking instead of only its head."
+    },
+    {
+      "key": "head_tail",
+      "title": "Head\u2013tail mixture",
+      "hypothesis": "Label both likely positives/hard negatives and clear negatives."
+    },
+    {
+      "key": "top_bm25",
+      "title": "Lexical-first selection",
+      "hypothesis": "Spend feedback on BM25's strongest candidates."
+    },
+    {
+      "key": "top_lsa",
+      "title": "Semantic-first selection",
+      "hypothesis": "Spend feedback on latent-semantic candidates."
+    },
+    {
+      "key": "top_char",
+      "title": "Character-robust selection",
+      "hypothesis": "Favor candidates supported by character-level similarity."
+    },
+    {
+      "key": "top_title",
+      "title": "Title-focused selection",
+      "hypothesis": "Favor concise title evidence before full-document evidence."
+    },
+    {
+      "key": "rrf_consensus",
+      "title": "Multi-retriever consensus",
+      "hypothesis": "Reward candidates jointly supported by several retrievers."
+    },
+    {
+      "key": "retriever_disagreement",
+      "title": "Retriever disagreement",
+      "hypothesis": "Label pairs on which lexical, character and semantic retrievers disagree."
+    },
+    {
+      "key": "uncertainty",
+      "title": "Current-model uncertainty",
+      "hypothesis": "Label candidates nearest the current model's decision boundary."
+    },
+    {
+      "key": "committee",
+      "title": "Bootstrap committee disagreement",
+      "hypothesis": "Use epistemic disagreement across cheap student replicas."
+    },
+    {
+      "key": "false_positive",
+      "title": "Likely false-positive hunting",
+      "hypothesis": "Inspect high-ranked candidates the current model distrusts."
+    },
+    {
+      "key": "false_negative",
+      "title": "Likely false-negative hunting",
+      "hypothesis": "Inspect low-ranked candidates the current model considers promising."
+    },
+    {
+      "key": "coverage",
+      "title": "Query-term coverage",
+      "hypothesis": "Prefer documents covering more of the query's content."
+    },
+    {
+      "key": "rank_strata",
+      "title": "Rank-stratified sampling",
+      "hypothesis": "Guarantee supervision from each rank band."
+    },
+    {
+      "key": "mmr_relevance",
+      "title": "Relevance\u2013diversity MMR",
+      "hypothesis": "Balance likely relevance with non-redundant documents."
+    },
+    {
+      "key": "mmr_uncertainty",
+      "title": "Uncertainty\u2013diversity MMR",
+      "hypothesis": "Cover multiple uncertain semantic regions."
+    },
+    {
+      "key": "farthest_first",
+      "title": "Semantic k-center coverage",
+      "hypothesis": "Cover the candidate manifold with farthest-first traversal."
+    },
+    {
+      "key": "cluster_representatives",
+      "title": "Candidate-cluster representatives",
+      "hypothesis": "Take representative documents from multiple semantic clusters."
+    },
+    {
+      "key": "center_outlier_mix",
+      "title": "Typical\u2013outlier mixture",
+      "hypothesis": "Label both dense-region representatives and unusual candidates."
+    },
+    {
+      "key": "hard_negative",
+      "title": "Hard-negative proxy",
+      "hypothesis": "Prioritize high retrieval score but low relevance probability."
+    },
+    {
+      "key": "leverage",
+      "title": "Feature-space leverage",
+      "hypothesis": "Select statistically influential examples in the student feature space."
+    },
+    {
+      "key": "d_optimal",
+      "title": "D-optimal experimental design",
+      "hypothesis": "Choose a set that maximizes feature-space information volume."
+    },
+    {
+      "key": "portfolio",
+      "title": "Diversified policy portfolio",
+      "hypothesis": "Hedge across exploitation, uncertainty, disagreement, coverage and diversity."
+    }
+  ],
+  "allocations": [
+    {
+      "key": "uniform",
+      "title": "Uniform per-query budget",
+      "hypothesis": "Give every query the same number of feedback calls."
+    },
+    {
+      "key": "difficulty",
+      "title": "Difficulty-adaptive budget",
+      "hypothesis": "Allocate more labels to low-confidence/high-entropy queries."
+    },
+    {
+      "key": "disagreement",
+      "title": "Disagreement-adaptive budget",
+      "hypothesis": "Allocate more labels where retrievers and model replicas disagree."
+    },
+    {
+      "key": "topic_balanced",
+      "title": "Topic-balanced budget",
+      "hypothesis": "Equalize total feedback across query clusters, not raw query counts."
+    }
+  ],
+  "runtime_seconds": 144.55456566810608,
+  "python": "3.11.16 (main, Aug 13 2026, 02:46:14) [GCC 13.3.0]",
+  "numpy": "1.26.4",
+  "pandas": "2.2.3"
+}

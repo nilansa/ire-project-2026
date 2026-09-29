@@ -1,0 +1,148 @@
+name: IRE dense feedback validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/dense-feedback-validation-20260929
+    paths:
+      - experiments/dense-feedback-validation/dense_feedback_validation.py
+      - experiments/dense-feedback-validation/requirements.txt
+      - experiments/dense-feedback-validation/README.md
+      - .github/workflows/dense-feedback-validation.yml
+
+permissions:
+  contents: write
+
+env:
+  TOKENIZERS_PARALLELISM: "false"
+  OMP_NUM_THREADS: "4"
+  MKL_NUM_THREADS: "4"
+  OPENBLAS_NUM_THREADS: "4"
+  NUMEXPR_NUM_THREADS: "4"
+  PYTHONHASHSEED: "0"
+  HF_HUB_DISABLE_TELEMETRY: "1"
+
+jobs:
+  validate:
+    name: dense-${{ matrix.dataset }}
+    strategy:
+      fail-fast: false
+      matrix:
+        dataset: [scifact, nfcorpus, arguana]
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify experiment source
+        run: |
+          echo "d0023ec8d171c3192dd6aa0d67b184391699e031cb9c1dc4a558456cd3b3dc2c  experiments/dense-feedback-validation/dense_feedback_validation.py" | sha256sum --check
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: experiments/dense-feedback-validation/requirements.txt
+
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          python -m pip install -r experiments/dense-feedback-validation/requirements.txt
+
+      - name: Static and import validation
+        run: |
+          python -m py_compile experiments/dense-feedback-validation/dense_feedback_validation.py
+          python experiments/dense-feedback-validation/dense_feedback_validation.py --help
+
+      - name: Run dataset validation
+        run: |
+          mkdir -p experiments/dense-feedback-validation/results
+          python experiments/dense-feedback-validation/dense_feedback_validation.py run-dataset \
+            --dataset "${{ matrix.dataset }}" \
+            --output experiments/dense-feedback-validation/results \
+            --cache "$RUNNER_TEMP/ire-dense-cache" \
+            --max-queries 300 \
+            --candidate-k 100 \
+            --teacher-batch 64 \
+            --train-steps 40 \
+            --lr 2e-5
+
+      - name: Upload dataset result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dense-feedback-${{ matrix.dataset }}
+          path: experiments/dense-feedback-validation/results/${{ matrix.dataset }}
+          if-no-files-found: error
+          retention-days: 30
+
+  aggregate:
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify experiment source
+        run: |
+          echo "d0023ec8d171c3192dd6aa0d67b184391699e031cb9c1dc4a558456cd3b3dc2c  experiments/dense-feedback-validation/dense_feedback_validation.py" | sha256sum --check
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install aggregation dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu torch==2.5.1
+          python -m pip install numpy==1.26.4 pandas==2.2.3 scipy==1.13.1 scikit-learn==1.5.2 transformers==4.45.2
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dense-feedback-*
+          path: "$RUNNER_TEMP/dense-artifacts"
+          merge-multiple: false
+
+      - name: Aggregate and write final report
+        run: |
+          rm -rf experiments/dense-feedback-validation/final-results
+          python experiments/dense-feedback-validation/dense_feedback_validation.py aggregate \
+            --input "$RUNNER_TEMP/dense-artifacts" \
+            --output experiments/dense-feedback-validation/final-results
+
+      - name: Verify final artifacts
+        run: |
+          test -s experiments/dense-feedback-validation/final-results/FINAL_REPORT.md
+          test -s experiments/dense-feedback-validation/final-results/FINAL_PROPOSAL.md
+          test "$(wc -l < experiments/dense-feedback-validation/final-results/ALL_TRAINING_RUNS.csv)" -gt 200
+          test "$(wc -l < experiments/dense-feedback-validation/final-results/ALL_SELECTION_DIAGNOSTICS.csv)" -gt 700
+          sha256sum experiments/dense-feedback-validation/final-results/* \
+            > experiments/dense-feedback-validation/final-results/SHA256SUMS.txt
+
+      - name: Commit complete source and results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add experiments/dense-feedback-validation
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Complete dense feedback-selection validation"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
+      - name: Upload final bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: dense-feedback-final-results
+          path: |
+            experiments/dense-feedback-validation/final-results
+            experiments/dense-feedback-validation/dense_feedback_validation.py
+            experiments/dense-feedback-validation/README.md
+          retention-days: 30

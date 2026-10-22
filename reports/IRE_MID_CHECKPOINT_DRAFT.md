@@ -2,24 +2,22 @@
 
 **Team Ceous · 22 October 2026 · Draft for the 31 October checkpoint**
 
-## Completed evidence
+## Question and completed evidence
 
-This project asks whether approximate-nearest-neighbor (ANN) candidate generation changes which query–passage pairs receive limited relevance feedback and whether that changes the retriever after post-training. Evidence remains diagnostic; no index is shown to be better.
+We ask whether approximate-nearest-neighbor (ANN) candidate generation changes which query–passage pairs receive limited relevance feedback and the retriever after post-training. Recall@200 is the fraction of exact-search top-200 passage IDs recovered; candidate Jaccard is intersection divided by union; selected shared fraction is shared IDs divided by 20, not Jaccard or relevance recall.
 
-In the **50k-passage MS MARCO ANCE sanity pilot**, HNSW and IVF-Flat recovered 0.955975 and 0.962250 of exact top-200 neighbors; candidate Jaccard was 0.91736. The deterministic rank-position rule selected 20 passages per query and the selected pools shared 0.4344 of IDs (intersection divided by 20, not Jaccard). This pilot used qrel positives and unlabelled negatives, **no cross-encoder teacher**, and 300 updates. All trained branches fell below untouched ANCE MRR@10 (0.890777).
+The **300-update, 50k-passage MS MARCO ANCE sanity pilot** used known qrel positives and unlabelled negatives, with no cross-encoder teacher. HNSW/IVF calibration Recall@200 was 0.955975/0.962250; top-200 candidate Jaccard was 0.91736; selected-20 shared fraction was 0.4344. MRR@10 (mean reciprocal rank of the first relevant result within ten) was 0.826063/0.833257/0.850488 for exact/HNSW/IVF training, versus 0.890777 for untouched ANCE. Every trained branch was lower; this was one seed.
 
-A **separate 100-update MS MARCO teacher pilot** scored 32,312 unique query–passage pairs with a cross-encoder. HNSW and IVF student MRR@10 were 0.866675 and 0.855858, below untouched ANCE (0.890777); teacher distributions concentrated similarly on known positives. This does not establish a teacher benefit or backend effect. The **separate SciFact teacher pilot** is not pooled with these MS MARCO results and has documented duplicate-query split issues.
+A **separate 100-update MS MARCO pilot** used a cross-encoder (a model that scores query and passage text together) on 32,312 pairs for soft-label training. HNSW/IVF MRR@10 was 0.866675/0.855858, below the same untouched baseline. The teacher's top passage agreed in 993/1,000 queries; mean aligned-distribution Jensen–Shannon divergence (a measure of distribution difference) was 0.00523. This shows neither a teacher benefit nor a backend effect. **SciFact is separate:** its two-seed teacher pilot has duplicate query texts across train/test IDs; repair and audit that split before interpreting its results.
 
-## Completed synthetic control
+## Synthetic selector control
 
-The cheapest control is completed: hold 200 IDs fixed and perturb only their order. At full perturbation, rank-position selected overlap averaged 0.060 across ten fixed seeds; the stable-ID control stayed at 1.000. Independent random 20-of-200 pairs averaged 0.09865 (analytic expectation 0.10); the identity baseline was 1.000. The run is CPU-only, standard-library Python.
+The CPU control reorders the same 200 synthetic IDs. At full reorder, rank-position selection shared 0.060 of its 20 IDs on average across ten seeds; a selector choosing IDs independently of rank stayed at 1.000. Independent random 20-of-200 pairs averaged 0.09865 (expected 0.10). This demonstrates a possible rank-sensitivity mechanism only. It does **not** validate the historical 0.4344: the original selector, query-to-seed mapping, and per-query lists are unavailable.
 
-**Falsifiable hypothesis:** rank-only perturbations lower shared-ID overlap under the documented position rule, while stable-ID selection remains invariant. The synthetic run exhibits this mechanism, but **is NOT experimental validation of the real 0.4344 result**: the historical selector source, query-to-seed mapping, and per-query lists are absent.
+## Prior work, next steps, and schedule
 
-## Proposed work, limitations and schedule
+ANCE already uses ANN-mined negatives; RocketQA uses cross-encoder filtering; SimANS most directly establishes that negative rank selection matters. The narrow open test is whether backend identity changes supervision when the remaining pipeline is fixed. No “first” or superiority claim is supported. See the [11-paper survey](../survey/docs/IRE_MID_2026_NEAREST_PRIOR_WORK.md).
 
-Both MS MARCO training pilots underperformed untouched ANCE; neither supports a downstream-improvement claim. The synthetic result is a mechanism demonstration only. Next, replay the control on historical per-query lists if recovered; before training, establish a working baseline, fixed feedback budget, paired seeds, clean splits, and exact-search evaluation. Treat SciFact split integrity separately.
+Next, recover and replay the historical selector; establish a clean split and a working positive-control training setup; then compare exact/HNSW/IVF with a fixed teacher and budget across at least three paired seeds. Stop if historical inputs remain unavailable, split leakage remains, or the positive control fails to beat untouched ANCE across three seeds. The **31 October** deliverable is the one-page checkpoint; the **15 November** deliverable is the final written report and video.
 
-**Schedule:** 22–24 Oct, review the completed selector control and locate (or mark unavailable) historical lists/source; by **31 Oct**, finalize the one-page progress report using verified evidence. 1–7 Nov, agree on the next design and split checks; 8–14 Nov, prepare the final written report and video; **15 Nov**, deliver both.
-
-**Sources:** `survey/experiments/02-ann-backend-negative-selection-sanity.md`; `experiments/ann-micro-pilot-20260907/RESULTS.md`; separate SciFact summary in `docs/index.html`. The original `RESEARCH_PLAN.md` was not changed.
+**Sources:** [research plan](../RESEARCH_PLAN.md); [300-update no-teacher record](../survey/experiments/02-ann-backend-negative-selection-sanity.md); [100-update teacher record](../experiments/ann-micro-pilot-20260907/RESULTS.md); [SciFact split caveat](../docs/index.html); [synthetic control](../experiments/selector-rank-falsification/RESULTS.md). The original research plan is unchanged.

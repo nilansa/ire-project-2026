@@ -1,0 +1,17 @@
+control,rank_perturbation_strength,replicates,mean_fraction_of_ranks_changed,mean_selected_20_shared_fraction,analytic_reference,notes
+identity_baseline,0.000000,1,0.000000,1.000000,1.000000,Same ordered list compared with itself
+documented_rank_position_rule,0.000000,10,0.000000,1.000000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.000000,10,0.000000,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,0.050000,10,0.045500,0.965000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.050000,10,0.045500,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,0.100000,10,0.094500,0.940000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.100000,10,0.094500,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,0.250000,10,0.248500,0.790000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.250000,10,0.248500,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,0.500000,10,0.495500,0.535000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.500000,10,0.495500,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,0.750000,10,0.743000,0.355000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,0.750000,10,0.743000,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+documented_rank_position_rule,1.000000,10,0.995000,0.060000,1.000000 at strength 0,Fixed query seed; same candidate IDs; rank positions are held fixed
+stable_id_rank_invariant_control,1.000000,10,0.995000,1.000000,1.000000,Select the same query-specific IDs regardless of rank order
+independent_random_20_of_200,not_applicable,1000,0.000000,0.098650,0.100000,Two independent identity-uniform samples; expected shared fraction is k/N

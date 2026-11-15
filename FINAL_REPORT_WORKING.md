@@ -1,6 +1,6 @@
 # Ceous — Final Report Working Document
 
-**Status:** WORKING DRAFT — final submission and Claude Science co-review are not yet confirmed.
+**Status:** WORKING DRAFT — preliminary SciFact smoke diagnostics recorded; held-out study and final submission are not yet confirmed.
 **Course:** IIIT Hyderabad · IRE M26CS4.406 · 15 November 2026
 **Team:** Nilanjan Sarkar; Raman Rayaprolu
 **Document for joint review by:** project team, ChatGPT, and the existing Claude Science Ceous project. Do not represent this revision as already approved by Claude Science.
@@ -8,7 +8,7 @@
 ## Submission links
 
 - **Canonical editable working document:** https://docs.google.com/document/d/1zJC22a8WGSWu6td3N_p48TvS_5qTCW9Q0c1QvxENwbU/edit
-- **Verified two-page PDF draft:** https://drive.google.com/file/d/15vxhxV_CFGdcdWa0wmw6d1S95q0XfvMX/view
+- **Verified two-page PDF draft:** https://drive.google.com/file/d/1VHIo-DbdMh2sZ1Z2BIkWw-8uSwwYx2Ym/view
 - **Existing code and research repository:** https://github.com/nilansa/ire-project-2026
 - **Drive final submission folder:** https://drive.google.com/drive/folders/1XZlJ2FYkFk1r5HtXGoKSGwQd4aVAi5C0
 - **Presentation video:** [VIDEO LINK TO BE ADDED — NOT YET UPLOADED]
@@ -32,9 +32,24 @@ RQ1: How often and for which queries do retriever top-K rankings disagree with s
 
 Hold query sets, corpus, first-stage baseline, teacher, candidate depth, and label definitions fixed. Compare (i) original retriever top-K, (ii) larger reranking-depth and cost-matched baselines, and (iii) tested feedback-informed shortlist policies. Within C_B, measure teacher-preference coverage: the fraction of the teacher's top-m documents among C_B included in S_K. Report relevance Recall@K using independent qrels, MRR@10 or nDCG@K as appropriate, and measured teacher-call counts and latency. Separate in-pool promotion from out-of-pool discovery; use held-out queries and controlled ablations. The teacher should not be evaluated solely on its own pseudo-labels.
 
-### 4. Existing evidence and limitations
+### 4. Baselines and initial experiments
 
-An earlier Ceous ANN micro-pilot compared the untouched ANCE checkpoint with teacher-trained variants on a 50,000-passage MS MARCO subset, using 500 evaluation queries. The recorded exact-search MRR@10 was 0.890777 (untouched ANCE), 0.866675 (HNSW + teacher) and 0.855858 (IVF + teacher). The two candidate-generation procedures changed which query–passage pairs received feedback, but neither trained branch improved the untouched baseline. The experiment used one seed; it does not establish a general improvement, statistical significance, or the effectiveness of the new top-K objective. Its repository record is a preliminary baseline, not a validated final result.
+**Earlier MS MARCO teacher-feedback pilot.** On a 50,000-passage corpus with 500 evaluation queries, exact-search MRR@10 was **0.890777** for untouched ANCE, **0.866675** for HNSW + teacher, and **0.855858** for IVF + teacher. Neither post-trained branch improved the untouched baseline; only one training seed was run.
+
+**DISCo-inspired coverage feasibility smoke (15 November 2026; SciFact TRAIN, 5 queries).** Frozen BM25, TAS-B, RRF, ColBERTv2 and coverage variants were evaluated retrospectively against SciFact train qrels. The figures below are from **five single-positive train queries**, *not an out-of-domain held-out test*. Each positive was present within the original 200-document candidate pool.
+
+| Method | Recall@10 | nDCG@10 |
+|:--|--:|--:|
+| BM25 | 1.00 | **0.8712** |
+| TAS-B dense | 0.80 | 0.6774 |
+| Hybrid RRF | 0.80 | 0.7262 |
+| ColBERTv2 relevance-only | 1.00 | 0.8000 |
+| DISCo-inspired token-coverage greedy | 1.00 | 0.8262 |
+| Residual-query token coverage | 1.00 | 0.8262 |
+
+The coverage arm gained **+0.0262 nDCG@10** relative to ColBERTv2 on these five training examples, but **did not beat BM25**. All five LLM decomposition requests returned **zero subqueries**. A synthetic two-facet positive control **passed**: coverage selected complementary facet-Y evidence within top-2, which relevance-only selection missed. No generalization, multi-hop, or statistical-significance claim follows from these checks.
+
+**Run trace.** The frozen protocol (PREREG.md), retrieve.py, score.py, controls.py, smoke JSONL, and smoke summary are in the preexisting local project branch at ~/Documents/ire-p5-minimal-evidence/branches/OOD_COVDECOMP_20261115/. The smoke retrieval ran 5 queries in **28.3099 seconds** total. The preregistered full study uses 100 SciFact test + 100 NFCorpus test + 100 MuSiQue 2-hop dev queries, with frozen weights and separate scoring; those results remain **pending verification**. This is a **DISCo-inspired** implementation, not a reproduction of DISCo's lifted/PLAID index.
 
 ### 5. Relation to prior work
 

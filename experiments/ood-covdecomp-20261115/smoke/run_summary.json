@@ -1,0 +1,15 @@
+{
+  "pid": 98538,
+  "smoke": true,
+  "datasets": [
+    "scifact"
+  ],
+  "rows": 5,
+  "llm_calls": 5,
+  "llm_output_tokens": 25,
+  "dense_device": "mps",
+  "colbert_device": "mps",
+  "model_revision": "b12d9352e776979147078a8975a4885042984fd1",
+  "wall_s": 28.309900207910687,
+  "completed_utc": "2026-11-15T17:59:25.160167+00:00"
+}

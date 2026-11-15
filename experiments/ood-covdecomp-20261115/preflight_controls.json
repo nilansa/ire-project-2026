@@ -1,0 +1,47 @@
+{
+  "pid": 96776,
+  "started_utc": "2026-11-15T17:50:28.155439+00:00",
+  "device": "mps",
+  "controls": [
+    {
+      "name": "planted_positive",
+      "expected": {
+        "A5_top2_contains_y": true,
+        "A4_top2_excludes_y": true
+      },
+      "observed": {
+        "A5_top2": [
+          "x2",
+          "y"
+        ],
+        "A4_top2": [
+          "x2",
+          "x1"
+        ],
+        "facet_y_id": "y"
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "oracle_metric",
+      "expected": {
+        "recall_at_2": 1.0,
+        "all_support_at_2": 1.0
+      },
+      "observed": {
+        "recall_at_2": 1.0,
+        "all_support_at_2": 1.0
+      },
+      "status": "PASS"
+    },
+    {
+      "name": "N3_static_leak",
+      "expected": "none of the four forbidden strings occurs in retrieve.py",
+      "observed": {
+        "forbidden_strings_found": []
+      },
+      "status": "PASS"
+    }
+  ],
+  "wall_s": 4.688764791935682
+}

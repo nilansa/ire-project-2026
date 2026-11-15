@@ -337,14 +337,17 @@ def run_one(dataset: str, query_rows: list[dict], ids: list[str], texts: list[st
         subs = dec["sub_queries"]
         output_decomps.append({"dataset": dataset, "qid": qid, "phase": progress_prefix, "prompt_sha256": hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest(), **dec})
         decomp_lists = []
-        decomp_calls = 0
         for sub in subs:
-            sb, sd, calls = fuse_for_query(bm25, dense, ids, dense_model, sub, 200)
-            decomp_lists.append(rrf([sb, sd])[:200]); decomp_calls += calls
+            sb, sd, _ = fuse_for_query(bm25, dense, ids, dense_model, sub, 200)
+            decomp_lists.append(rrf([sb, sd])[:200])
+        decomp_work_s = time.perf_counter() - t
+        t_fuse = time.perf_counter()
         a7_lists = [rrf([b1, d1])[:200]] + decomp_lists
         a7 = rrf(a7_lists)[:200]
+        lat_a7 = decomp_work_s + time.perf_counter() - t_fuse
+        t_fuse = time.perf_counter()
         a7b = rrf(decomp_lists)[:200] if decomp_lists else []
-        lat_a7 = time.perf_counter() - t
+        lat_a7b = decomp_work_s + time.perf_counter() - t_fuse
 
         t = time.perf_counter()
         a8pool = list(dict.fromkeys(d for r in a7_lists for d in r))
@@ -353,17 +356,17 @@ def run_one(dataset: str, query_rows: list[dict], ids: list[str], texts: list[st
         all8vec = {**all6vec, **vec8}
         best8, _ = similarities(qvec, a8pool, all8vec, cdevice)
         a8 = greedy(a8pool, best8, 20)
-        lat_a8 = time.perf_counter() - t
+        lat_a8 = decomp_work_s + time.perf_counter() - t
 
         random_a5, random_order = random_control(qid, qvec, base, pool_vecs, cdevice)
-        timings = {"A1": lat_a1, "A2": lat_a2, "A3": lat_a3, "A4": lat_a4, "A5": lat_a5, "A6": lat_a6, "A7": lat_a7, "A7b": lat_a7, "A8": lat_a8}
+        timings = {"A1": lat_a1, "A2": lat_a2, "A3": lat_a3, "A4": lat_a4, "A5": lat_a5, "A6": lat_a6, "A7": lat_a7, "A7b": lat_a7b, "A8": lat_a8}
         results = {
             "dataset": dataset, "qid": qid, "query": query,
             "rankings": {"A1": b1, "A2": d1, "A3": base, "A4": a4, "A5": a5, "A6": a6, "A7": a7, "A7b": a7b, "A8": a8},
             "base_pool": base, "a7_pool": a8pool,
             "random_a5": random_a5, "random_order": random_order,
             "latency_s": timings,
-            "retrieval_calls": {"A1": 1, "A2": 1, "A3": 0, "A4": 0, "A5": 0, "A6": 2 if residual else 0, "A7": 2 * (1 + len(subs)), "A7b": 2 * len(subs), "A8": 0},
+            "retrieval_calls": {"A1": 1, "A2": 1, "A3": 0, "A4": 0, "A5": 0, "A6": 2 if residual else 0, "A7": 2 * len(subs), "A7b": 2 * len(subs), "A8": 0},
             "doc_encodings": {"A1": 0, "A2": 0, "A3": 0, "A4": len(base), "A5": 0, "A6": len(extra6), "A7": 0, "A7b": 0, "A8": len(extra8)},
             "llm_calls": {"A1": 0, "A2": 0, "A3": 0, "A4": 0, "A5": 0, "A6": 0, "A7": 1, "A7b": 1, "A8": 1},
             "llm_tokens": {"A1": 0, "A2": 0, "A3": 0, "A4": 0, "A5": 0, "A6": 0, "A7": dec["tokens"], "A7b": dec["tokens"], "A8": dec["tokens"]},

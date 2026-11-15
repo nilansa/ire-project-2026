@@ -378,9 +378,12 @@ def main() -> None:
     m3_den = sum(r["in_pool_count"] + r["out_of_pool_count"] for r in a7_mu20)
     m3_out_share = sum(r["out_of_pool_count"] for r in a7_mu20) / m3_den if m3_den else 0.0
     m3_discovery = m3_out_share > 0.05
+    controls_pass = all(c.get("status") == "PASS" for c in controls.values())
     if blocked_reason:
         verdict = "PARK / REVISIT"
-    elif (d1_fire or d2_fire) and d3_pass and all(c.get("status") == "PASS" for c in controls.values()):
+    elif not controls_pass:
+        verdict = "STOP (control failure; metrics not confirmatory)"
+    elif (d1_fire or d2_fire) and d3_pass:
         verdict = "CONTINUE"
     elif m2_positive or m3_discovery:
         verdict = "PIVOT"
@@ -388,7 +391,7 @@ def main() -> None:
         verdict = "STOP"
     decision_rules = {
         "D1_M1_supported": bool(d1_fire), "D2_M3_supported": bool(d2_fire), "D2_Yin_consistent_harm": bool(yin_harm),
-        "D3_nonregression_pass": bool(d3_pass), "D4_M2_positive": bool(m2_positive),
+        "D3_nonregression_pass": bool(d3_pass), "D4_M2_positive": bool(m2_positive), "all_controls_pass": bool(controls_pass),
         "D2_A7_out_of_pool_share_gt_5pct": bool(m3_discovery), "D2_A7_out_of_pool_share": m3_out_share,
         "verdict": verdict,
     }
@@ -417,7 +420,7 @@ def write_manifest(results: dict, datasets: list[str], blocked_reason: str | Non
     prep = read_json(DATA / "prepare_manifest.json")
     smoke = read_json(ROOT / "smoke" / "run_summary.json")
     main_run = read_json(ROOT / "retrieval" / "run_summary.json")
-    files = ["PREREG.md", "common.py", "prepare.py", "retrieve.py", "score.py", "controls.py", "run_phase.py", "run_full.sh", "preflight_controls.json", "data/prepare_manifest.json", "data/scifact/corpus.jsonl", "data/scifact/queries.jsonl", "data/nfcorpus/corpus.jsonl", "data/nfcorpus/queries.jsonl", "data/musique/corpus.jsonl", "data/musique/queries.jsonl", "data/smoke_scifact_train.jsonl", "data/raw/scifact.zip", "data/raw/nfcorpus.zip", "cache/scifact_tasb.npy", "cache/scifact_tasb.json", "cache/nfcorpus_tasb.npy", "cache/nfcorpus_tasb.json", "cache/musique_tasb.npy", "cache/musique_tasb.json", "smoke/retrieval.jsonl", "smoke/decompositions.jsonl", "smoke/run_summary.json", "retrieval/retrieval.jsonl", "retrieval/decompositions.jsonl", "retrieval/run_summary.json", "per_query.csv", "results.json", "controls.json", "decompositions.jsonl", "REPORT.md", "DEVIATIONS.md", "hidden_labels/qrels.json", "hidden_labels/supports.json", "stage1_musique/corpus.jsonl", "stage1_musique/data/musique_ans_v1.0_dev.jsonl"]
+    files = ["PREREG.md", "CODE_LOCK.json", "common.py", "prepare.py", "retrieve.py", "score.py", "controls.py", "run_phase.py", "run_full.sh", "preflight_controls.json", "data/prepare_manifest.json", "data/scifact/corpus.jsonl", "data/scifact/queries.jsonl", "data/nfcorpus/corpus.jsonl", "data/nfcorpus/queries.jsonl", "data/musique/corpus.jsonl", "data/musique/queries.jsonl", "data/smoke_scifact_train.jsonl", "data/raw/scifact.zip", "data/raw/nfcorpus.zip", "cache/scifact_tasb.npy", "cache/scifact_tasb.json", "cache/nfcorpus_tasb.npy", "cache/nfcorpus_tasb.json", "cache/musique_tasb.npy", "cache/musique_tasb.json", "smoke/retrieval.jsonl", "smoke/decompositions.jsonl", "smoke/run_summary.json", "smoke/sanity.json", "retrieval/retrieval.jsonl", "retrieval/decompositions.jsonl", "retrieval/run_summary.json", "per_query.csv", "results.json", "controls.json", "decompositions.jsonl", "REPORT.md", "DEVIATIONS.md", "hidden_labels/qrels.json", "hidden_labels/supports.json", "stage1_musique/corpus.jsonl", "stage1_musique/data/musique_ans_v1.0_dev.jsonl"]
     hashes = {name: sha256_file(ROOT / name) for name in files if (ROOT / name).is_file()}
     checkpoint_files = {p.name: sha256_file(p) for p in sorted(__import__("common").COLBERT_PATH.iterdir()) if p.is_file()}
     hf_snapshot = ROOT / "hf_cache" / "hub" / "models--sentence-transformers--msmarco-distilbert-base-tas-b" / "snapshots" / __import__("common").MODEL_REVISION
@@ -437,6 +440,7 @@ def write_manifest(results: dict, datasets: list[str], blocked_reason: str | Non
         "task": "IRE P5 OOD_COVDECOMP_20261115", "started_utc": prep["started_utc"], "completed_utc": now(),
         "parent_pid": os.getppid(), "score_pid": os.getpid(), "smoke": smoke, "main_run": main_run,
         "datasets_scored": datasets, "musique_blocked_reason": blocked_reason,
+        "llm_call_ledger": {"main_run_calls": main_run["llm_calls"], "main_run_output_tokens": main_run["llm_output_tokens"], "train_smoke_calls": smoke["llm_calls"], "train_smoke_output_tokens": smoke["llm_output_tokens"], "initial_failed_format_probe_calls": 1, "initial_failed_format_probe_output_tokens": None, "known_total_calls": main_run["llm_calls"] + smoke["llm_calls"] + 1},
         "model": {"dense": "sentence-transformers/msmarco-distilbert-base-tas-b", "revision": __import__("common").MODEL_REVISION, "dense_model_files_sha256": dense_model_files, "colbert_path": str(__import__("common").COLBERT_PATH), "colbert_files_sha256": checkpoint_files, "decomposition": main_run["ollama_model"], "ollama_digest": main_run["ollama_digest"], "ollama_version": main_run["ollama_version"]},
         "llm_configuration": {"temperature": 0, "seed": 0, "think": False, "system_prompt_sha256": next(iter(read_jsonl(ROOT / "decompositions.jsonl")))["prompt_sha256"]},
         "versions": versions, "python": sys.version, "platform": __import__("platform").platform(),

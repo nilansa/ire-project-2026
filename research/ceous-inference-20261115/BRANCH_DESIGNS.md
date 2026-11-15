@@ -1,0 +1,17 @@
+# Proposed branch designs — 2026-11-15
+
+These are unexecuted proposals, not reservations or validated settings. Each requires a fresh preregistration, independent review, ownership reconciliation and reservation before any run. P5 owns its distinct ongoing lexical/dense RRF, decomposition/fusion and coverage experiments; do not duplicate them.
+
+## H3 — bounded kernel residual within U50 (root + Astra theory)
+
+Normalize copies of document vectors. For the initial 20 feedback documents, standardize base scores using F20 statistics as `b(d)=(q0·d−μb)/σb`, and teacher scores as `t_i=(r_i−μr)/σr`; use variance floors and fall back to dense for a constant teacher. Let `e=t−b`, `k(d,d′)=exp(−||d−d′||²/(2σ²))`, `α=(K+λI)⁻¹e`, and `s=b+γ k_Fᵀα`, where `γ=min(1,c/sqrt(αᵀKα))` and γ=1 for zero norm. One proposed setting is λ=1, c=0.5, and σ² equal to the median positive squared pairwise distance in the initial 50; these settings are unvalidated. Because k(d,d)=1, each adjustment has absolute value at most c, and margins above 2c cannot reverse. Weights remain frozen but per-query fitting occurs. Score U50 only, so no discovery outside it. Account for retrieval, 20 teacher pairs, a 20×20 solve and kernel work O(50²d+20³+50·20·d). Compare linear KRR (affine/single-query) and prespecified shuffled residual; park if no improvement over linear or unchanged ranking, or feedback shuffle explains the gain. Full-corpus kernel scoring requires O(Nmd), not ordinary ANN. This uses standard kernel ideas and claims no novelty.
+
+## H5 — fixed-budget score-blind selection (root + Sol)
+
+Split initial 50 into five rank bins of ten. Select in four rounds, one per bin in fixed order: anchor rank 1, then maximize minimum cosine distance to already selected documents across bins. Normalize for selection only; zero-vector distance is 0; break ties by original rank then ID. Freeze all 20 IDs before reading teacher logits; cached 50 scores are not free feedback. Compare first20, uniform20, four-per-bin random, and pure farthest-first geometry, with identical adaptation settings, direct rerank of selected 20, and fixed-pool counterpart. Keep the original top20 analysis region distinct from actual feedback set F. The optional sequential 10+10 variant belongs to H4 coordination; do not duplicate it.
+
+## H6 — multi-direction max fusion (Claude ownership, theory support)
+
+For `s(d)=max_j q_j·d`, sum fusion would collapse to a single query, but max fusion is nonlinear. Under exact search, identical corpus and scoring arithmetic, common stable tie ordering, and each Lj≥K, the union of exact top-Lj lists contains the global max-fused top K. Proof: choose a maximizing direction j for document d. If d is outside its top K, at least K documents precede d in j; their fused scores are at least their j scores and therefore precede d in the fused order, a contradiction. L=(50,25,25), K=20 uses 100 returned slots (at most 100 unique) and three scans versus H1's two. This guarantees the fused ranking, not relevance or approximate-ANN behavior. Feedback-cluster construction of q1/q2 is unfrozen. Coordinate with P5's related RRF; do not repeat its experiment.
+
+H4 asks when/how much budget, H5 which documents at fixed 20, and H6 which multiple directions. H3/H5 teacher-budget-20 work is distinct; P5's one-round adaptive A6 overlaps H4 partially. Additional optimizer, diagonal Fisher, shuffled-teacher and lexical-hybrid comparators must be preregistered before broad novelty or practical claims.

@@ -1,0 +1,110 @@
+{
+  "task_id": "ire-final-submission-20261115-1943",
+  "run_prefix": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19",
+  "generated_at": "2026-11-15T18:17:42Z",
+  "status": {
+    "pid": 97605,
+    "returncode": 0,
+    "timed_out": false,
+    "wall_seconds": 1377.944555875,
+    "cap_seconds": 1800,
+    "outcome": "completed"
+  },
+  "files": [
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-execution-status.json",
+      "bytes": 143,
+      "sha256": "b7d8ade07f1f9ccb891a4fd28a18f9eb05922d7904a5bd394a4e15c0d7c4d53d"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-execution.sh",
+      "bytes": 2238,
+      "sha256": "3e7a5a8b5b9eb5d5ee379f306599290a3a9a7961f72cdfdbc07232e0e62ef1f4"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-hardware-software.txt",
+      "bytes": 1544,
+      "sha256": "f519edb492fd0811fbfb064c589318b4ae9de0523036b38ca872cefb255fbdd6"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-result-handoff.md",
+      "bytes": 4959,
+      "sha256": "9bf6784464f21657b8205f831558e107d442776b647d9fe8f249ba739a0a517f"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-stdout.log",
+      "bytes": 402,
+      "sha256": "2ab1885ed2f5e7dab3ab6a88d7bd21f593f871f820ae6ea42308690d46a57262"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-supervisor.py",
+      "bytes": 1197,
+      "sha256": "fc421171f2b23b4647e4be39a9a51a53c85013ed2106ada893b7edffc5682c34"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-budget/budget.json",
+      "bytes": 616,
+      "sha256": "cbebe54c83fec88e9c96847bc8b5503430f248c35e100c32b508d22f1603c556"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-dev-predict/manifest.json",
+      "bytes": 71635,
+      "sha256": "7e8b17739faadeb873534955509f507492b65f2573a9df7b462e67a3c711a5bb"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-dev-predict/predictions.jsonl",
+      "bytes": 208409564,
+      "sha256": "8a7b6b324cdb75d382cdc805d7a269ee66df33808c498fc76ec3d885a2ca3742"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-dev-score/manifest.json",
+      "bytes": 1189,
+      "sha256": "10afad3c68fd62570a4f46fff43d1327e51d3b707ad5e79f1f2e96a06c82b550"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-dev-score/per_query.csv",
+      "bytes": 28995904,
+      "sha256": "9428b4373a801c592007d8328d91d6e7fcaa0506509429ace22d7befde8870c5"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-dev-score/summary.json",
+      "bytes": 1201989,
+      "sha256": "8d546b6eaab85bd9589f74f90b6872e79d16a7abae34ff1c28f17a92e617cc38"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-inner-predict/manifest.json",
+      "bytes": 10185,
+      "sha256": "5ffa98d552343674edea14589c802893f4b6eb34bf341681e9c2e77c0581a919"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-inner-predict/predictions.jsonl",
+      "bytes": 5095325,
+      "sha256": "ebc571b37c802ebef53077165d334fd1bf56d4dd8cb6d7fb3c88040cd55da6d8"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-inner-score/manifest.json",
+      "bytes": 1191,
+      "sha256": "8efb45b1b86127206f25286b5282441f427f7af58363935dd1a38594d114b113"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-inner-score/per_query.csv",
+      "bytes": 652403,
+      "sha256": "10032940cb6b4b4d4cf4c756a292f5e7bf37a07b27cf683f94d0bf1377889514"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-inner-score/summary.json",
+      "bytes": 112103,
+      "sha256": "4238867ed44ac2f6095d3adc63e697b9c63744c7533f1f38b4866ef426e66ab7"
+    },
+    {
+      "path": "/Users/nilan/.codex/scratch/cross-surface/ire-project/ire-final-submission-20261115-1943/shared/baseline-work/ceous-approved-study-20261115T175011Z-c8f4e559-9a3a-4d49-9652-f700eec75c19-selection/selection.json",
+      "bytes": 2419,
+      "sha256": "1e120ea6baf4730fa84d5ef28e8a542680b397c5ea331f25fb5c1af607f08fe9"
+    }
+  ]
+}

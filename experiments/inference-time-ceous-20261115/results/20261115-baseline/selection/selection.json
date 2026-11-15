@@ -1,0 +1,62 @@
+{
+  "alignment_sha256": "0bf495b424fc52b7bba6fdf6ab32354f4918e7aa52f17e3a68915f0650b4453d",
+  "budget_sha256": "cbebe54c83fec88e9c96847bc8b5503430f248c35e100c32b508d22f1603c556",
+  "code_hashes": {
+    "PROTOCOL.md": "dfa00c8bfc250de22b5c7b9887b00b041b80b8f392e5fdcbb452744101e3fe54",
+    "alignment.py": "3c101b8f18c61078ececbecf3198f6d98f38bacd1789c4a598ee459167613718",
+    "harness.py": "1afd2c5bf62052336cbed6d26ff5137bdf2f535de94b42bf8857c93761bc386a",
+    "test_harness.py": "7b37024f2b1b5b2cd1a36be5a19c9ce1a55f7ab23e40ffc50fbe6dad90c957ae"
+  },
+  "criterion": "max dev mean nDCG10; ties fewer scans, smaller configured step, lexical name",
+  "development_per_query_sha256": "9428b4373a801c592007d8328d91d6e7fcaa0506509429ace22d7befde8870c5",
+  "development_summary_sha256": "8d546b6eaab85bd9589f74f90b6872e79d16a7abae34ff1c28f17a92e617cc38",
+  "fallback": "deployment choice is dense on equal or lower development nDCG10; every dev winner still runs on INNER",
+  "families": {
+    "h2:bge": {
+      "deployment_choice": "h2:bge:3.2:1:t4",
+      "dev_ndcg10": 0.7206303943633389,
+      "dev_winner": "h2:bge:3.2:1:t4"
+    },
+    "h2:medcpt": {
+      "deployment_choice": "h2:medcpt:0.8:10:t4",
+      "dev_ndcg10": 0.7451267838894261,
+      "dev_winner": "h2:medcpt:0.8:10:t4"
+    },
+    "rocchio": {
+      "deployment_choice": "dense",
+      "dev_ndcg10": 0.6494235113149344,
+      "dev_winner": "rocchio:0.05"
+    },
+    "tour:bge": {
+      "deployment_choice": "tour:bge:0.8:stop0:t0.5",
+      "dev_ndcg10": 0.7217334345942489,
+      "dev_winner": "tour:bge:0.8:stop0:t0.5"
+    },
+    "tour:medcpt": {
+      "deployment_choice": "tour:medcpt:0.8:stop0:t4",
+      "dev_ndcg10": 0.74760138321407,
+      "dev_winner": "tour:medcpt:0.8:stop0:t4"
+    },
+    "weighted:bge": {
+      "deployment_choice": "weighted:bge:1:t0.5",
+      "dev_ndcg10": 0.7204000236777448,
+      "dev_winner": "weighted:bge:1:t0.5"
+    },
+    "weighted:medcpt": {
+      "deployment_choice": "weighted:medcpt:1:t4",
+      "dev_ndcg10": 0.7414821750974723,
+      "dev_winner": "weighted:medcpt:1:t4"
+    }
+  },
+  "review_sha256": "15f95d8e366063980ef6bbe335bffd78c48eda6351a86ef6e5add0b4fad111e6",
+  "selected_names": [
+    "h2:bge:3.2:1:t4",
+    "h2:medcpt:0.8:10:t4",
+    "rocchio:0.05",
+    "tour:bge:0.8:stop0:t0.5",
+    "tour:medcpt:0.8:stop0:t4",
+    "weighted:bge:1:t0.5",
+    "weighted:medcpt:1:t4"
+  ],
+  "status": "exploratory"
+}

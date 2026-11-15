@@ -1,0 +1,20 @@
+{
+  "alignment_sha256": "0bf495b424fc52b7bba6fdf6ab32354f4918e7aa52f17e3a68915f0650b4453d",
+  "bootstrap_draws": 2000,
+  "budget_sha256": "cbebe54c83fec88e9c96847bc8b5503430f248c35e100c32b508d22f1603c556",
+  "code_hashes": {
+    "PROTOCOL.md": "dfa00c8bfc250de22b5c7b9887b00b041b80b8f392e5fdcbb452744101e3fe54",
+    "alignment.py": "3c101b8f18c61078ececbecf3198f6d98f38bacd1789c4a598ee459167613718",
+    "harness.py": "1afd2c5bf62052336cbed6d26ff5137bdf2f535de94b42bf8857c93761bc386a",
+    "test_harness.py": "7b37024f2b1b5b2cd1a36be5a19c9ce1a55f7ab23e40ffc50fbe6dad90c957ae"
+  },
+  "per_query_sha256": "9428b4373a801c592007d8328d91d6e7fcaa0506509429ace22d7befde8870c5",
+  "prediction_manifest_sha256": "7e8b17739faadeb873534955509f507492b65f2573a9df7b462e67a3c711a5bb",
+  "prediction_sha256": "8a7b6b324cdb75d382cdc805d7a269ee66df33808c498fc76ec3d885a2ca3742",
+  "qrels_sha256": "a53f2114831916c096b6c37d9e54da68cef4efdcdbd5ed46533601af972acf1d",
+  "review_sha256": "15f95d8e366063980ef6bbe335bffd78c48eda6351a86ef6e5add0b4fad111e6",
+  "seed": 20261115,
+  "split": "dev",
+  "status": "exploratory",
+  "summary_sha256": "8d546b6eaab85bd9589f74f90b6872e79d16a7abae34ff1c28f17a92e617cc38"
+}

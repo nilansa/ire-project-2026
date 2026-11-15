@@ -1,0 +1,17 @@
+{
+  "decision": "APPROVED",
+  "independent_reviewer": "/root/baseline_review \u2014 GPT-6.1 Sol xhigh",
+  "independence_statement": "The execution handoff reports the reviewer did not implement or edit the files or index, and did not run real data; it performed an authorized synthetic runtime check. The approval is the relayed independent agent verdict, not a human signature.",
+  "reservation_id": "CEOUS-BASELINE-H1H2-001",
+  "code_hashes": {
+    "alignment.py": "3c101b8f18c61078ececbecf3198f6d98f38bacd1789c4a598ee459167613718",
+    "harness.py": "1afd2c5bf62052336cbed6d26ff5137bdf2f535de94b42bf8857c93761bc386a",
+    "test_harness.py": "7b37024f2b1b5b2cd1a36be5a19c9ce1a55f7ab23e40ffc50fbe6dad90c957ae",
+    "PROTOCOL.md": "dfa00c8bfc250de22b5c7b9887b00b041b80b8f392e5fdcbb452744101e3fe54"
+  },
+  "alignment_sha256": "0bf495b424fc52b7bba6fdf6ab32354f4918e7aa52f17e3a68915f0650b4453d",
+  "qrels_sha256": "a53f2114831916c096b6c37d9e54da68cef4efdcdbd5ed46533601af972acf1d",
+  "code_commit": "b62f385f0b8b0fa7b01d056e24ec7fc9a9394eb1",
+  "review_artifact_url": "https://github.com/nilansa/ire-project-2026/blob/b62f385f0b8b0fa7b01d056e24ec7fc9a9394eb1/experiments/inference-time-ceous-20261115/INDEPENDENT_REVIEW.md",
+  "created_at": "2026-11-15T17:49:04Z"
+}

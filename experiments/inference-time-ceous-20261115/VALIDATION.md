@@ -1,0 +1,7 @@
+# Validation record — preparation only
+
+The first alignment invocation stopped with `KeyError: qid505` before candidate comparison because the task description abbreviated the teacher archive shapes as key names. Inspection showed the actual keys are `qid` and `doc_ids`; the script was corrected. The empty redirected output from that failed invocation is preserved in `shared/baseline-work/alignment-initial-key-error-613CFD6A-6757-42C4-B98E-A58BC4AD0F45.json`.
+
+The subsequent complete alignment passed: 809/809 exact top-50 sets and orders, zero maximum score difference at the stated 0.000002 tolerance, and 505/505 complete ordered teacher-document joins. All 4 normalized-text duplicate groups were inspected; none spans development and INNER, leaving 405/100. No qrels were opened by alignment. The full report and source hashes are in `shared/baseline-work/alignment-C9224B25-7E96-422D-BB87-00F18E665639.json`; its SHA-256 is `0bf495b424fc52b7bba6fdf6ab32354f4918e7aa52f17e3a68915f0650b4453d`.
+
+The three synthetic tests in `test_harness.py` passed after the final implementation edits. They verify the outside-pool ideal denominator, fixed-pool versus full-search discovery and counts, and independence from permuted judgments plus stable duplicate-free ties. No end-to-end run against real qrels or any real-method prediction was attempted. The total runtime and scientific validity of the proposed experiment remain unverified pending review.

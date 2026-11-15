@@ -2,7 +2,7 @@
 
 **Status:** WORKING DRAFT — preliminary SciFact smoke diagnostics recorded; held-out study and final submission are not yet confirmed.
 **Course:** IIIT Hyderabad · IRE M26CS4.406 · 15 November 2026
-**Team:** Nilanjan Sarkar; Raman Rayaprolu
+**Author:** Nilanjan Sarkar
 **Document for joint review by:** project team, ChatGPT, and the existing Claude Science Ceous project. Do not represent this revision as already approved by Claude Science.
 
 ## Submission links

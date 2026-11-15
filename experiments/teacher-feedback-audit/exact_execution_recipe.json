@@ -1,0 +1,50 @@
+{
+  "evaluation": "post-training full-50k re-encoding + exhaustive IP top1000; MRR@10 primary, R@100 secondary, all available qrels",
+  "execution_permission": "NO INFERENCE, TRAINING, OR TEACHER SCORING AUTHORIZED",
+  "frozen_data_manifest_sha256": "dc68eda9ea98b766bec69c7c0499fb634f3e91cc950d40c6292f677f8f2cb922",
+  "frozen_eval_qrels_sha256": "24231c6514db85b9f7bdd33a6de1c8cd5f59780aea17ff8ed75de73e6a14dca0",
+  "frozen_training_pairs_sha256": "e28e43d0808de818552904cd8cb1b60983bd9779d19f8d153b87616d2a30644c",
+  "historical_optimizer_and_encoding_settings": {
+    "batch_queries": 8,
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "clip_norm": 1.0,
+    "deterministic_algorithms_enforced": false,
+    "eps": 1e-08,
+    "fixed_training_padding": true,
+    "lr": 2e-05,
+    "optimizer": "AdamW",
+    "passage_length": 128,
+    "precision": "float32",
+    "query_length": 32,
+    "schedule_seed": 20260940,
+    "seed": 20260907,
+    "student_checkpoint": "sentence-transformers/msmarco-roberta-base-ance-firstp",
+    "teacher_batch": 64,
+    "teacher_max_length": 256,
+    "temperature": 1.0,
+    "trained_queries": 800,
+    "updates": 100,
+    "weight_decay": 0.01
+  },
+  "objectives": {
+    "hard_positive": {
+      "known_positive_index": 0,
+      "teacher_pairs_charged": 0
+    },
+    "teacher_soft": {
+      "cached_pairs": 10282,
+      "known_positive_index": 0,
+      "missing_pairs": 6518,
+      "teacher_pairs_charged": 16800
+    }
+  },
+  "source_archive_sha256": "b51dea1c6dfe9c61fa7d245eeed004d9bfb347b3cf7e1a38ba1d665924426115",
+  "source_teacher_runner_sha256": "98e33d520bd897729a2437d03f396f511fd6306943a354c84cdbe74c5c2be77d",
+  "status": "SOURCE_LOCKED_LOSS_RECIPE_ONLY_NO_MODEL_RUN",
+  "student_initial_state_sha256": "e6f42f74ca80eb282b5b7fa68df335eb4f57586227c601d0c60da85378e954bd",
+  "task_id": "ire-mid-checkpoint-20261022-001",
+  "teacher_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a"
+}

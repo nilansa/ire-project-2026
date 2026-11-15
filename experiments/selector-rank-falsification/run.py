@@ -72,9 +72,9 @@ def select_stable_ids(
 def select_random_ids(
     candidate_ids: Sequence[str], budget: int, seed: int
 ) -> tuple[str, ...]:
-    """Select a uniform identity-based sample, independent of candidate rank."""
+    """Sample uniformly from sorted identities, independent of input rank."""
     _validate(candidate_ids, budget)
-    return tuple(random.Random(seed).sample(list(candidate_ids), budget))
+    return tuple(random.Random(seed).sample(sorted(candidate_ids), budget))
 
 
 def shared_fraction(left: Sequence[str], right: Sequence[str], budget: int) -> float:

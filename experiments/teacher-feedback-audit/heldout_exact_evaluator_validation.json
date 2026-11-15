@@ -1,0 +1,41 @@
+{
+  "archived_per_query_and_aggregate_parity": {
+    "hnsw": {
+      "MRR@10": 0.866674603174603,
+      "Recall@100": 0.993,
+      "Recall@1000": 1.0
+    },
+    "initial": {
+      "MRR@10": 0.890776984126984,
+      "Recall@100": 0.993,
+      "Recall@1000": 1.0
+    },
+    "ivf": {
+      "MRR@10": 0.8558579365079364,
+      "Recall@100": 0.991,
+      "Recall@1000": 1.0
+    }
+  },
+  "corpus_passages": 50000,
+  "data_freeze_sha256": "dc68eda9ea98b766bec69c7c0499fb634f3e91cc950d40c6292f677f8f2cb922",
+  "eval_ordered_qrels_sha256": "24231c6514db85b9f7bdd33a6de1c8cd5f59780aea17ff8ed75de73e6a14dca0",
+  "evaluated_original_query_rows": 1500,
+  "evaluation_queries": 500,
+  "execution_permission": "NO GPU, MODEL INFERENCE, TEACHER SCORING OR TRAINING AUTHORIZED",
+  "query_text_overlap": {
+    "calibration_eval": 0,
+    "train_eval": 0
+  },
+  "rank_depth": 1000,
+  "relevance_judgments_in_diagnostic_corpus": 535,
+  "saved_ranking_array_sha256": {
+    "hnsw": "ccc1219f5107211c27ba8bbda377cc3f458889bc46a9eea45395d1707a25d312",
+    "initial": "8435860bfd016fc444b19a2514ab1bf9fd6203eb51f8f2fdd0a0857b9b263d2c",
+    "ivf": "979cd57e78c7de72d1300d58259b5c24155a33b4992d4be26320e57114792b52"
+  },
+  "scientific_scope": "Original positive-enriched 50k diagnostic cohort only; NOT official full MS MARCO",
+  "source_archive_sha256": "b51dea1c6dfe9c61fa7d245eeed004d9bfb347b3cf7e1a38ba1d665924426115",
+  "status": "ARCHIVED_RAW_RANKINGS_EVALUATOR_PARITY_PASS_NO_MODEL_RUN",
+  "task_id": "ire-mid-checkpoint-20261022-001",
+  "verified_per_query_cells": 7500
+}

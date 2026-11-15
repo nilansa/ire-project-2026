@@ -1,0 +1,32 @@
+{
+  "archive_sha256": "b51dea1c6dfe9c61fa7d245eeed004d9bfb347b3cf7e1a38ba1d665924426115",
+  "batch_queries": 8,
+  "cached_exact_teacher_pairs": 10282,
+  "evaluation": "post-training full-50k re-encoding + exhaustive IP top1000; MRR@10 primary, R@100 secondary, all available qrels",
+  "evaluation_500_qids_qrels_sha256": "24231c6514db85b9f7bdd33a6de1c8cd5f59780aea17ff8ed75de73e6a14dca0",
+  "evaluation_corpus": "positive-enriched diagnostic 50k MS MARCO, NOT official full-corpus",
+  "evaluation_queries": 500,
+  "execution_permission": "PROTOCOL_ONLY; requires explicit authorization for 6518 teacher scores or training",
+  "fully_cached_training_queries": 121,
+  "matched_slate_control": "hard-positive CE on the SAME exact 21 document IDs and query schedule; zero teacher calls",
+  "missing_6518_pairs_sha256": "1597ca29e7e6aeed88df7d1a26c29df37bb70edc51ca5871ce18eff76ae778e8",
+  "new_teacher_scores_needed": 6518,
+  "per_arm_teacher_labels_charged": 16800,
+  "per_query_positive_plus_negatives": [
+    1,
+    20
+  ],
+  "source_zip_sha256": "a6a822f64d8b48b008841975615bd368f92b3473840a1b6e4e9cd7a2111fc324",
+  "status": "FROZEN_PROTOCOL_NOT_EXECUTED",
+  "student": "sentence-transformers/msmarco-roberta-base-ance-firstp",
+  "student_initial_state_sha256": "e6f42f74ca80eb282b5b7fa68df335eb4f57586227c601d0c60da85378e954bd",
+  "task_id": "ire-mid-checkpoint-20261022-001",
+  "teacher_objective": "listwise teacher-soft CE on the SAME exact 21 IDs; teacher softmax T=1",
+  "teacher_revision": "233902d25c440f23af6f7d6e94d2946bac0bee0a",
+  "teacher_temperature": 1.0,
+  "train_exact_ordered_16800_pairs_sha256": "e28e43d0808de818552904cd8cb1b60983bd9779d19f8d153b87616d2a30644c",
+  "train_schedule_800_qids_sha256": "9f1c0ade64d7f569eadfdfd9e59273df0370882c5d365cc6ed37c9b3710f25ea",
+  "training_queries": 800,
+  "updates": 100,
+  "zero_teacher_baseline": "untouched ANCE MRR@10=0.8907769841269841"
+}

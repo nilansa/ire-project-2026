@@ -1,0 +1,31 @@
+{
+  "actually_consumed_query_lists_per_arm": 800,
+  "arms": {
+    "hnsw": {
+      "archived_1000_mean_positive_probability_verified": true,
+      "fraction_negative_probability_mass_from_below_0_5_queries": 0.817640716,
+      "trained_800_mean_positive_probability": 0.960141453,
+      "trained_800_positive_not_teacher_top": 29,
+      "trained_800_positive_probability_at_least_0_999": 643,
+      "trained_800_positive_probability_below_0_5": 30,
+      "trained_800_sum_negative_probability_mass": 31.886837372,
+      "unused_200_mean_positive_probability": 0.977901131
+    },
+    "ivf": {
+      "archived_1000_mean_positive_probability_verified": true,
+      "fraction_negative_probability_mass_from_below_0_5_queries": 0.832351955,
+      "trained_800_mean_positive_probability": 0.960708471,
+      "trained_800_positive_not_teacher_top": 29,
+      "trained_800_positive_probability_at_least_0_999": 645,
+      "trained_800_positive_probability_below_0_5": 30,
+      "trained_800_sum_negative_probability_mass": 31.433223556,
+      "unused_200_mean_positive_probability": 0.97757991
+    }
+  },
+  "cohort": "historical_50k_MS_MARCO_ANCE_100_update_teacher_pilot",
+  "interpretation_boundary": "These are teacher soft-target probabilities on historical training slates, not observed student gradients, causal backend effects, or held-out performance. Do not use a teacher score to alter the pre-teacher selection policy.",
+  "paired_query_ids_with_positive_probability_below_0_5_in_both_arms": 29,
+  "score_records_verified": 32312,
+  "source_archive_sha256": "b51dea1c6dfe9c61fa7d245eeed004d9bfb347b3cf7e1a38ba1d665924426115",
+  "teacher_temperature": 1.0
+}

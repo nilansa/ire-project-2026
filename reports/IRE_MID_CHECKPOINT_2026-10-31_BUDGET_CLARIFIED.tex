@@ -1,0 +1,52 @@
+\documentclass[10pt]{article}
+\setlength{\textwidth}{7.15in}
+\setlength{\textheight}{9.72in}
+\setlength{\oddsidemargin}{-0.32in}
+\setlength{\evensidemargin}{-0.32in}
+\setlength{\topmargin}{-0.75in}
+\setlength{\headheight}{0in}
+\setlength{\headsep}{0in}
+\setlength{\footskip}{0.25in}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\pagestyle{empty}
+\newcommand{\sect}[1]{\vspace{5pt}{\large\bfseries #1}\par\vspace{3pt}\hrule\vspace{6pt}}
+\begin{document}
+{\LARGE\bfseries Team Ceous \hfill IRE Research Checkpoint}\\[-1pt]
+{\small 31 October 2026 \hfill Interim submission \textbar\ Final report/video: 15 November 2026}\vspace{5pt}\hrule
+
+\sect{Research question}
+Can a strictly \textbf{pre-teacher, budgeted candidate selector} improve \textbf{final held-out retrieval} when candidate generation, acquired teacher labels, initialization, optimizer and evaluation are controlled? ANN Recall@200 is exact-pool ID agreement, \emph{not} relevance recall.
+
+\sect{Completed historical evidence (verified 12 October archive)}
+\vspace{-3pt}
+\begin{center}
+\begin{tabular}{lcccc}
+\hline
+\textbf{MS MARCO 50k diagnostic; MRR@10} & \textbf{Untouched} & \textbf{Exact} & \textbf{HNSW} & \textbf{IVF}\\
+\hline
+300 updates; mined negatives; no teacher & 0.890777 & 0.826063 & 0.833257 & 0.850488\\
+100 updates; MiniLM teacher; 21-way soft CE & 0.890777 & not run & 0.866675 & 0.855858\\
+\hline
+\end{tabular}
+\end{center}
+\vspace{-8pt}
+\textbf{Both pilots degraded the untouched ANCE retriever.} In the no-teacher pilot, only 2,400 of 20,000 selected negative occurrences entered the 300 updates; one training seed limits inference.
+
+\textbf{Archived D1 selector falsification:} HNSW--IVF selected-20 ID overlap was \textbf{43.44\%}. Shifting the ordering of the \emph{same} exact top-200 IDs reduced overlap to \textbf{9.415\%}; stable document-ID priorities raised cross-backend overlap to \textbf{93.495\%}. Of disagreeing selections, 92.39\% were present in both candidate pools. These controls establish rank-sensitive selection, \emph{not} downstream teacher or retrieval benefit.
+
+\sect{Teacher utility and validity}
+The archived 100-update pilot requested 21,000 teacher pairs per backend and consumed 16,800 per backend; cross-backend caching gave 32,312 distinct scored pairs. Teacher positive-target probability averaged about \textbf{96.4\%}, with the same top teacher document for 993/1,000 queries. A later cached-row audit found that 30 of the 800 consumed query slates account for 82--83\% of non-positive target probability mass. This is target concentration, \emph{not} measured gradient or retrieval utility.
+
+The 50,000-passage MS MARCO cohort deliberately includes all known evaluation positives: its near-ceiling baseline is \textbf{not official full-corpus retrieval}. Archived 500-query qrels and saved ranking metrics have been cross-checked for this diagnostic, not for generalization. \textbf{SciFact is separate}; its archived nDCG denominator error was corrected. Neither backend superiority nor feedback efficiency has been demonstrated.
+
+\sect{What is ready; what remains}
+The private 12 October reproducibility ZIP has been integrity-checked and staged. Original ANCE initialization, teacher revision, source texts, frozen 800-query schedule, 21-way objectives and a held-out ranking evaluator have been checked; a guarded runner and source-text adapter prohibit training/inference. For the exact-retrieval teacher control, \textbf{10,282/16,800} scheduled pair scores are cached and \textbf{6,518 remain unscored}. \textbf{Budget caveat:} historical ANN teacher arms each acquired 21,000 labels, but this frozen exact control acquires 16,800. Equal training-label \emph{consumption} does not equal teacher-label \emph{acquisition}.
+
+\sect{Decision and November 15 experiment gate}
+\textbf{GO:} Submit the accurately scoped October 31 checkpoint. Specify a positive control with fixed initialization, 800-query order, one positive plus 20 negatives/query, source-matched training, full-50k re-encoding and 500-query held-out qrel evaluation. Compare \emph{hard-positive/no-teacher} (0 acquired labels) to \emph{exact-retrieval teacher-soft} (16,800 acquired labels); only subsequently compare selector policies at equal acquired-pair budgets and paired seeds.
+
+\textbf{NO-GO:} New teacher scoring, GPU inference or optimizer updates without authorization. If the control cannot improve on untouched ANCE, do not claim successful post-training or expand the ANN grid. The November 15 report/video must distinguish mechanism, negative results and proposed tests.
+
+{\footnotesize\emph{Evidence:} 12 October 2026 private adversarial review and reproducibility archive (D1/D2); validated historical pilot records; 24--25 October cached-score and CPU-only implementation audits. Related work: ANCE, RocketQA, SimANS.}
+\end{document}

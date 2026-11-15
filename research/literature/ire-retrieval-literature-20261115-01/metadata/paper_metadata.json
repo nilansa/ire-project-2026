@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0",
+  "task_id": "ire-retrieval-literature-20261115-01",
+  "project": "ire-project-2026",
+  "created_utc": "2026-11-15T14:49:31.801161+00:00",
+  "canonical_device_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01",
+  "canonical_drive_folder_url": "https://drive.google.com/drive/folders/1msi0_dCLZFGBEzMm3kYB7jAUbUXtHxcf",
+  "scratch_drive_folder_url": "https://drive.google.com/drive/folders/1xRMSDITeae6CjwW9STuFyQvq0P6MkPGh",
+  "source_policy": "Claims explicitly separate paper-supported results from new proposed IRE hypotheses; read primary PDF before quoting or modifying a result.",
+  "ingestion_policy": {
+    "format": "Markdown+YAML frontmatter; hash-verified PDF sources",
+    "split_on": "Markdown ## headings",
+    "preserve_fields": [
+      "id",
+      "title",
+      "authors",
+      "venue",
+      "year",
+      "source_status",
+      "claim_type",
+      "source_anchor",
+      "sha256"
+    ],
+    "dedup_by": "paper_id + section_slug + sha256",
+    "index_namespace": "ire:retrieval-literature",
+    "redis_write_performed": false
+  },
+  "research_comparison": {
+    "ANCE": "training-time adaptive hard-negative mining",
+    "NashANN": "retrieval-time attribute/social-welfare diversity",
+    "DISCo": "retrieval-time joint query-token coverage",
+    "possible_ire_extension": "budgeted reward-model selection using ANN difficulty, Nash group coverage and DISCo facet coverage; not a published result"
+  },
+  "papers": [
+    {
+      "id": "ire-paper-ance-2007-00808",
+      "name": "ANCE",
+      "title": "Approximate Nearest Neighbor Negative Contrastive Learning for Dense Text Retrieval",
+      "year": 2021,
+      "venue": "ICLR 2021",
+      "arxiv": "2007.00808",
+      "research_role": "training negative selection and asynchronous index refresh",
+      "pdf": "ANCE_2007.00808.pdf",
+      "markdown": "ANCE_detailed.md",
+      "download_url": "https://arxiv.org/pdf/2007.00808",
+      "published_pdf": "https://houwx.net/files/papers/qa/2021_iclr_ance.pdf",
+      "code_url": "https://github.com/microsoft/ANCE",
+      "redis_key": "paper:ance:2007.00808",
+      "tags": [
+        "negative-mining",
+        "dense-retrieval",
+        "retriever-training",
+        "post-training"
+      ],
+      "pdf_artifact": {
+        "relative_path": "papers/ANCE_2007.00808.pdf",
+        "sha256": "3ffc05cd484c56e33fc8806b17df9607043b336dd5c6c6ede83cd87955d23f1f",
+        "size_bytes": 629958,
+        "mime_type": "application/pdf",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/papers/ANCE_2007.00808.pdf"
+      },
+      "markdown_artifact": {
+        "relative_path": "notes/ANCE_detailed.md",
+        "sha256": "e4aef0667c2ab2528497b4132bb699a2aa27b1042524aea337556250b2fb2dc3",
+        "size_bytes": 19181,
+        "mime_type": "text/markdown",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/notes/ANCE_detailed.md"
+      },
+      "note_sections": 10,
+      "note_lines": 244,
+      "note_words": 2552
+    },
+    {
+      "id": "ire-paper-nashann-2602-08742",
+      "name": "NashANN",
+      "title": "Welfarist Formulations for Diverse Similarity Search",
+      "year": 2026,
+      "venue": "ICLR 2026",
+      "arxiv": "2602.08742",
+      "research_role": "attribute-aware candidate set diversity under welfare objectives",
+      "pdf": "NashANN_2602.08742.pdf",
+      "markdown": "NashANN_detailed.md",
+      "download_url": "https://arxiv.org/pdf/2602.08742",
+      "published_pdf": "https://openreview.net/pdf/cfafb6e42fa52a198856f231e89c74b0846d8560.pdf",
+      "code_url": "https://github.com/shivi98g/NashANN",
+      "redis_key": "paper:nashann:2602.08742",
+      "tags": [
+        "nash-social-welfare",
+        "diverse-ann",
+        "query-time-selection",
+        "multi-attribute"
+      ],
+      "pdf_artifact": {
+        "relative_path": "papers/NashANN_2602.08742.pdf",
+        "sha256": "6fef6d80f65aec4f972305137cc76b06953fb899430910a041e157d953d7090a",
+        "size_bytes": 15478516,
+        "mime_type": "application/pdf",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/papers/NashANN_2602.08742.pdf"
+      },
+      "markdown_artifact": {
+        "relative_path": "notes/NashANN_detailed.md",
+        "sha256": "f40c5995af538a7b295214b16d9eb9c237c2eb73f046ae8686cd7f2dcfab2620",
+        "size_bytes": 21231,
+        "mime_type": "text/markdown",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/notes/NashANN_detailed.md"
+      },
+      "note_sections": 11,
+      "note_lines": 291,
+      "note_words": 2765
+    },
+    {
+      "id": "ire-paper-disco-iclr2026",
+      "name": "DISCo",
+      "title": "A Dense Subset Index for Collective Query Coverage",
+      "year": 2026,
+      "venue": "ICLR 2026",
+      "arxiv": null,
+      "research_role": "collective query-facet coverage and indexed multi-vector candidate retrieval",
+      "pdf": "DISCo_ICLR2026.pdf",
+      "markdown": "DISCo_detailed.md",
+      "download_url": "https://proceedings.iclr.cc/paper_files/paper/2026/file/6ded182245f8e4db3963d2027174133d-Paper-Conference.pdf",
+      "published_pdf": "https://proceedings.iclr.cc/paper_files/paper/2026/file/6ded182245f8e4db3963d2027174133d-Paper-Conference.pdf",
+      "code_url": "https://github.com/structlearning/DISCo",
+      "redis_key": "paper:disco:iclr2026",
+      "tags": [
+        "collective-coverage",
+        "submodular-selection",
+        "multi-vector-ann",
+        "query-time-selection"
+      ],
+      "pdf_artifact": {
+        "relative_path": "papers/DISCo_ICLR2026.pdf",
+        "sha256": "01ae56862fd6d5ea2ed935fadcde1569b6e071a46d150e48899ac43007ef88e3",
+        "size_bytes": 1847782,
+        "mime_type": "application/pdf",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/papers/DISCo_ICLR2026.pdf"
+      },
+      "markdown_artifact": {
+        "relative_path": "notes/DISCo_detailed.md",
+        "sha256": "ab7fa079cb835a19d206310a44ed10cdf3cf3691e53e774e242bde0d84760aae",
+        "size_bytes": 25619,
+        "mime_type": "text/markdown",
+        "local_canonical_path": "/Users/nilan/Documents/ire-project-2026/research/literature/ire-retrieval-literature-20261115-01/notes/DISCo_detailed.md"
+      },
+      "note_sections": 13,
+      "note_lines": 354,
+      "note_words": 3369
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "all_1000_queries": {
+    "physically_cached_pairs": 12859,
+    "previously_unscored_pairs": 8141,
+    "requested_pair_budget": 21000
+  },
+  "case": "original_50k_MS_MARCO_ANCE_teacher_pilot_only",
+  "exact_pre_teacher_rule": "Original exact top-200 -> stored selector-selected 20 negatives + one known positive",
+  "historical_hnsw_ivf_score_union_verified": true,
+  "historical_teacher_cache_unique_pairs": 32312,
+  "scope_limit": "Existing cache does NOT provide all teacher logits needed for a fixed 20-negative exact arm; no teacher inference or student training executed.",
+  "source_archive_sha256": "b51dea1c6dfe9c61fa7d245eeed004d9bfb347b3cf7e1a38ba1d665924426115",
+  "training_800_queries": {
+    "cached_fraction": 0.61202381,
+    "physically_cached_pairs": 10282,
+    "previously_unscored_pairs": 6518,
+    "queries_with_zero_new_scores": 121,
+    "requested_pair_budget": 16800
+  },
+  "training_schedule": "Original common 800 query IDs, 100 updates x 8 queries"
+}

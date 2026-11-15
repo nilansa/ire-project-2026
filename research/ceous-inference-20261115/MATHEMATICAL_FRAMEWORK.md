@@ -71,7 +71,7 @@ For a fixed set of `n` feedback documents and positive integer embedding dimensi
 
 `∇²L(q) = Dᵀ(diag(s) − ssᵀ)D / T²`, with `rank(∇²L) ≤ min(d, n − 1)`.
 
-The inner matrix is the student-probability-weighted covariance of the fixed feedback document vectors; the rank bound follows because it annihilates the all-ones vector. Uniform covariance over the initial 50 documents, used as the H2 proposal, is not generally this Hessian or the exact Fisher: it uses a different support and weights unless those happen to coincide. For the directional control, equal Euclidean step means equal length of the **complete applied displacement** after weight decay and clipping, with any subsequent normalization accounted for; matching a raw optimizer update alone is insufficient.
+The inner `n × n` matrix is the covariance of the one-hot document-choice indicator under the student probabilities. Multiplication by `Dᵀ` and `D` turns it into the student-probability-weighted covariance of the fixed document vectors. The rank bound follows because the inner matrix annihilates the all-ones vector. Uniform covariance over the initial 50 documents, used as the H2 proposal, is not generally this Hessian or the exact Fisher: it uses a different support and weights unless those happen to coincide. For the directional control, equal Euclidean step means equal length of the **complete applied displacement** after weight decay and clipping, with any subsequent normalization accounted for; matching a raw optimizer update alone is insufficient.
 
 ## TOUR as an essential prior, not a novelty claim
 

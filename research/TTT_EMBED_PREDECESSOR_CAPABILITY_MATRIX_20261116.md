@@ -1,7 +1,7 @@
 # Ceous — TTT-Embed Predecessor Capability Matrix (2023–2026)
 
 **Purpose:** A *historical, source-grounded comparison*, **not** a new Ceous research proposal, planned algorithm, or claim of novelty.  
-**Date:** 2026-11-16 · **Task:** \`ire-ceous-training-free-rerank-20261116-0524\`  
+**Date:** 2026-11-16 · **Task:** `ire-ceous-training-free-rerank-20261116-0524`  
 **Endpoint:** [TTT-Embed, arXiv:2608.12569 (12 Aug 2026)](https://arxiv.org/abs/2608.12569)  
 **Source boundaries:** Full primary text inspected for TOuR, ReFIT, FIRST, ColBERT-PRF, and Gera et al. 2026; IBM official abstract / publisher metadata only for SIGIR 2025; TTT-Embed primary arXiv abstract and available summaries. Do **not** pretend the inaccessible SIGIR 2025 full paper was read. All published results below are **author-reported**, not independent Ceous results.
 
@@ -17,7 +17,7 @@ There are **three meanings** that earlier discussions accidentally conflated:
 
 **Critical factual correction:** TOuR *already freezes both encoders* (see §3.1, p. 5733). TOuR, ReFIT and TTT-Embed do **not** require cross-encoder *hidden embeddings or internal weights* to calculate their retriever-side correction: the cross-encoder supplies relevance **scores**; the query/document vectors used in the update come from the **retriever**. Thus “TTT is first to use only a black-box reranker score” is false. The key distinction for TTT is *reusing a learned residual across queries/tasks*, subject to its sharing scope.
 
-**Query-time computation correction:** TOuR may repeatedly retrieve, rerank, and update a query embedding over feedback rounds. ReFIT's *usual* setting uses **one teacher-scoring round**, up to 100 **cheap query-vector gradient updates**, then another retrieval. Do **not** mistake 100 optimization steps for 100 full cross-encoder forward-pass rounds. ReFIT's original Table 1 reports 400 ms GPU total for retrieval+rera nk versus 470 ms with ReFIT under their hardware/candidate setup (a relative 17.5% overhead), **not** an unqualified assertion that per-query feedback is prohibitively slow.
+**Query-time computation correction:** TOuR may repeatedly retrieve, rerank, and update a query embedding over feedback rounds. ReFIT's *usual* setting uses **one teacher-scoring round**, up to 100 **cheap query-vector gradient updates**, then another retrieval. Do **not** mistake 100 optimization steps for 100 full cross-encoder forward-pass rounds. ReFIT's original Table 1 reports 400 ms GPU total for retrieval+rerank versus 470 ms with ReFIT under their hardware/candidate setup (a relative 17.5% overhead), **not** an unqualified assertion that per-query feedback is prohibitively slow.
 
 ## 2. Historical capability matrix — seven predecessors, then TTT-Embed
 
@@ -60,7 +60,7 @@ Published **Recall@100**, in percentage points, for selected shared tasks:
 | BEIR task average (as Table 6 reports) | 66.8 | 68.4 | 68.1 | **69.2** |
 | Mr.TyDi (as Table 6 reports) | 87.0 | 88.7 | 88.1 | **89.7** |
 
-**Provenance caution:** ReFIT marks TOuR's NQ and EntityQuestions cells with \`+\` (values carried from the original paper), so these rows are a *published cross-paper comparison*, not a fully new from-scratch matched rerun. ReFIT states it used the **same retriever and reranker** as TOuR for NQ and EntityQuestions, and explicitly analyzes why one teacher feedback round plus more query-vector steps is less expensive than TOuR's repeated rounds. This comparison already addresses the user's concern that test-time query feedback requires repeated expensive teacher calls.
+**Provenance caution:** ReFIT marks TOuR's NQ and EntityQuestions cells with `+` (values carried from the original paper), so these rows are a *published cross-paper comparison*, not a fully new from-scratch matched rerun. ReFIT states it used the **same retriever and reranker** as TOuR for NQ and EntityQuestions, and explicitly analyzes why one teacher feedback round plus more query-vector steps is less expensive than TOuR's repeated rounds. This comparison already addresses the user's concern that test-time query feedback requires repeated expensive teacher calls.
 
 ### FIRST compares strength/type of teacher signal (2024): Table 4
 
@@ -98,7 +98,7 @@ Its description does **not** establish that older ReFIT or TOuR demanded teacher
 ## 5. Primary sources checked
 
 1. [ColBERT-PRF, Wang et al., ACM TWEB 2023](https://doi.org/10.1145/3572405), esp. abstract, §§4.3–4.5, conclusion; source explicitly says *no additional ColBERT training*.
-2. [TOuR, Sung et al., ACL Findings 2023](https://aclanthology.org/2023.findings-acl.354.pdf), **p. 5733, §3.1** freezes encoders and defines teacher scalar \`s=phi(q,c)\`; methods §§3.2–3.5.
+2. [TOuR, Sung et al., ACL Findings 2023](https://aclanthology.org/2023.findings-acl.354.pdf), **p. 5733, §3.1** freezes encoders and defines teacher scalar `s=phi(q,c)`; methods §§3.2–3.5.
 3. [ReFIT, Reddy et al., arXiv May 2023](https://arxiv.org/html/2305.11744), **§3.2** lists needed **retriever query/document vectors plus reranker scores**, **§4.2** latency, **§5.4 Table 6** controlled TOuR comparison.
 4. [FIRST, Reddy et al., EMNLP 2024](https://aclanthology.org/2024.emnlp-main.491.pdf), **p. 8642** logits/ranking-loss teacher; **§4.4 / Table 4 p. 8649** query-vector feedback comparisons.
 5. [A Large-Scale Study of Reranker Relevance Feedback at Inference, Reddy et al., SIGIR 2025](https://research.ibm.com/publications/a-large-scale-study-of-reranker-relevance-feedback-at-inference), official abstract (full paper restricted in this review), DOI: 10.1145/3726302.3730160.

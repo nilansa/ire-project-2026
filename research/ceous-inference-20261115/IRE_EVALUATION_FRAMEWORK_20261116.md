@@ -1,6 +1,6 @@
 # Ceous — IRE evaluation and experimental framework
 
-**Version:** 1.0 · 16 November 2026 (IST)  
+**Version:** 1.1 · 16 November 2026 (IST) — revised minimal-training-first research narrative  
 **Purpose:** A cohesive, evidence-backed research evaluation and oral-defense checklist for M26CS4.406.  
 **Scope:** Documentation and synthesis only. This document does not launch an experiment, claim a new result, modify the canonical research-status tracker, or transfer files to a local Codex workspace.  
 **Task reference:** ire-eval-defense-20261116-0521  
@@ -12,13 +12,28 @@
 
 We are not trying to prove that every experiment beats the baseline. We are trying to produce a **controlled answer to a well-posed question**, including negative results.
 
-### The one-minute project narrative
+### The one-minute project narrative — minimal training first
 
-1. **Original motivation:** Microsoft's *Efficient and accurate post-training of retrieval models* challenge asks which query-document pairs deserve expensive reward scoring, how to formulate feedback losses, and how to spend compute efficiently. Our initial plan asked whether ANN candidate selection changes post-training outcomes.
-2. **First finding:** In a small MS MARCO / ANCE pilot, both trained variants underperformed the untouched retriever. That pilot is only one seed on a restricted corpus, so it is evidence against those tested configurations, not a broad refutation of post-training.
-3. **Narrower research pivot:** The expensive-feedback allocation problem also arises **at inference time**. Instead of changing model and index weights, we ask whether per-query teacher scores can help retrieval and at what cost. This is **not post-training** and must be named as an alternative direction.
-4. **Current evidence:** With SciFact cached scores, a TOUR-style query-movement transfer gave a small gain over direct 20-document reranking, but it did not meet the preregistered practical threshold and required more search work. The tested H2 local-covariance adaptation lost to its matched TOUR control.
-5. **Research contribution today:** A reproducible, independently audited experimental comparison, a careful decomposition of failure modes, and a clear decision about what has and has not been demonstrated. Proposed H3–H6 mechanisms remain future work unless separately executed and audited.
+1. **The retrieval problem:** A cheap first-stage retriever selects candidate documents; a stronger, costly reranker can inspect only a limited shortlist. Useful documents below that cutoff are unavailable to the expensive downstream stage.
+2. **Why revisit training?** The Microsoft Research challenge raises the question of how to use costly reward-model feedback for retriever post-training. Retraining involves collecting/scoring training pairs and updating the retriever. But expensive feedback is also available at query time, so full model-weight updates need not be the first option explored.
+3. **Literature-driven refinement:** After reviewing inference-time feedback and retrieval-coverage literature (including TOUR, ReFIT, related reranker-feedback work and DISCo), we narrowed the research question: **Can a fixed retriever use a small amount of teacher feedback per query to produce a better top-K shortlist within an accountable inference budget?** Existing related work means no blanket novelty claim.
+4. **Minimal-additional-training setup:** Keep encoder and index weights frozen; retrieve an initial pool, score a selected subset with a teacher, adapt only query-specific state and/or the candidate-selection policy, and evaluate the final shortlist. Per-query fitting is still optimization, **not model-weight retraining** and not “zero computation.”
+5. **Measured answer so far:** In the audited exploratory SciFact screen, a TOUR-style transfer gained +0.003264 DEV nDCG@10 over direct rerank20 but used extra retrieval work and fell below the team's +0.01 practical screen. H2, the tested local-covariance mechanism, lost to an exact matched TOUR control.
+6. **Research deliverable:** Fair quality–cost comparisons, an audited and reproducible method screen, query-level error decomposition, and defensible limits. H3–H6 are hypotheses requiring separate reviews and experiments.
+
+**Conceptual contrast (do not conflate the two paths):**
+
+```text
+Conventional retriever post-training:
+training queries/pairs -> costly reward feedback -> update retriever weights -> use updated retriever
+
+Current Ceous research:
+query -> frozen retriever / initial pool -> limited teacher feedback
+      -> per-query adaptation / candidate selection -> top-K output
+      -> independently judged evaluation and full cost accounting
+```
+
+**Story boundary:** Preliminary ANN/ANCE trials were exploratory domain reconnaissance. They are deliberately **not used to motivate or evaluate the present inference-time research question**. Their historical logs remain in the repository; there is no claim that retriever post-training is generally ineffective.
 
 **Do not claim:** new algorithmic novelty; a generalizable win; a blind held-out result; end-to-end speed improvement; or a solution to Microsoft's post-training problem from a frozen-weight inference study.
 
@@ -102,10 +117,6 @@ Sources: [research status](../../RESEARCH_STATUS.md), [branch designs](BRANCH_DE
 
 References: [RESULTS.md](../../experiments/inference-time-ceous-20261115/RESULTS.md), [AUDIT_RESULTS.md](../../experiments/inference-time-ceous-20261115/AUDIT_RESULTS.md), [PROTOCOL.md](../../experiments/inference-time-ceous-20261115/PROTOCOL.md).
 
-### Distinct older result, not part of the same table
-
-A historical one-seed, 50k-passages MS MARCO / ANCE pilot reported untouched MRR@10 **0.890777**, HNSW+teacher **0.866675**, IVF+teacher **0.855858**. Both changed training arms underperformed that checkpoint. Do not compare these scores numerically with SciFact nDCG or present them as an inference-time method result. See [historical results](../../experiments/ann-micro-pilot-20260907/RESULTS.md).
-
 ### Scientifically responsible conclusion
 
 > “On the tested, previously exposed SciFact queries, query adaptation produced only a small DEV advantage over direct rerank20 and did not meet our cost-aware screen; the tested geometric variant underperformed a matched existing method. However, the controlled analysis identifies distinct bottlenecks and defines where more targeted feedback selection or retrieval-budget allocation could be useful. Generalization remains unverified.”
@@ -121,7 +132,7 @@ Legend: **[x]** evidence verified in linked records; **[ ]** action or verificat
 - [x] IRE final **submission receipt** exists from 15 Nov 2026, with a named project PDF. **Receipt only**; actual file content was not independently opened here.
 - [x] Cal.com confirmation lists **Monday 16 Nov, 5:40–6:00 PM IST, F5 MTNLP**.
 - [ ] Open the **actual submitted PDF**; confirm maximum two readable pages; verify its numbers/claims against the audited repo and avoid contradictions with the working report.
-- [ ] Prepare **one 45-second story**: original research question → failed pilot → narrower inference-time question → controlled result → limitation.
+- [ ] Prepare **one 45-second story**: two-stage retrieval and expensive feedback → literature-driven minimal-training question → controlled result → limitation.
 - [ ] Prepare **one honest result table** (Section 5) with a cost column and split labels; explain rerank50's additional teacher calls.
 - [ ] Prepare **one failure-mode figure**: initial F20 → U50 → outside-U50/100, label judged vs unjudged relevance.
 - [ ] Be ready to show the existing replay script and explain how qrels are kept out of per-query adaptation.
@@ -132,7 +143,7 @@ Legend: **[x]** evidence verified in linked records; **[ ]** action or verificat
 ### P1 — Scientific validity
 
 - [x] H1/H2 protocol, cached results and independent raw-metrics audit documented.
-- [x] Original MSR motivation and explicit inference-time **pivot** documented.
+- [x] Original MSR motivation and a literature-driven **inference-time scope refinement** documented; no failed-pilot causal narrative.
 - [x] Existing H2 negative result and its decision rule documented.
 - [ ] Clearly mark every plot/table as **historical**, **exploratory**, **audited**, or **proposed**.
 - [ ] Add a per-query gain/loss example if time permits, but do not manufacture qualitative explanations without inspecting examples.
@@ -154,7 +165,7 @@ Legend: **[x]** evidence verified in linked records; **[ ]** action or verificat
 | Time | Show | Examiner question it answers |
 |---|---|---|
 | 0–1 min | One diagram and research question | What exactly is the problem? |
-| 1–3 min | Original MSR direction, first failed pilot, explicit pivot | Why this scope, and how is it related to literature? |
+| 1–3 min | Minimal-training motivation and literature-driven question refinement | Why this scope, and how is it related to literature? |
 | 3–5 min | Pipeline and controllable interventions | What changes in your proposed method? |
 | 5–8 min | Frozen dataset, baselines, teacher/scans/slots and result table | Is the experiment fair and interpretable? |
 | 8–10 min | H1 small gain, H2 failed result, bootstrap interval | What did you learn rather than merely observe? |

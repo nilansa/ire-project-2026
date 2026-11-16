@@ -4,8 +4,8 @@
 **Date:** 2026-11-16  
 **Task ID:** \`ire-ceous-training-free-rerank-20261116-0524\` (reuse existing Ceous cross-surface task; no new file-transfer workspace)  
 **Status:** SOURCE-VERIFIED PROBLEM FORMULATION + EXPERIMENT DESIGN. **Not an experiment, no measured Ceous improvement, and no novelty claim.**  
-**Parent:** [Initial candidate-repair specification](../TRAINING_FREE_CANDIDATE_REPAIR_20261116.md)  
-**Existing data header:** [candidate_repair_schema_v1.csv](../datasets/candidate_repair_schema_v1.csv)  
+**Parent:** [Initial candidate-repair specification](TRAINING_FREE_CANDIDATE_REPAIR_20261116.md)  
+**Existing data header:** [candidate_repair_schema_v1.csv](datasets/candidate_repair_schema_v1.csv)  
 **Coordination issue:** [Ceous research #3](https://github.com/nilansa/ire-project-2026/issues/3)
 
 ## 0. The exact statement, distilled from discussion
@@ -71,8 +71,10 @@ The third column means "not established or not held fixed in the inspected sourc
 - Frozen teacher: **Qwen3-Reranker-4B** (matching TTT-Embed's default), take \`P(Yes)\` computed from frozen Yes/No logits if using its documented input template; snapshot model/prompt and score extraction. If not available, **do not silently substitute a MiniLM and call the result a TTT-Embed reproduction**. A MiniLM teacher is a separately tagged cheap-signal sensitivity study.
 - L2-normalize vectors; primary *common* ANN: **FAISS HNSWFlat / inner product**, fixed index file, insertion order, M and efConstruction, **same efSearch** for every method. First use an exact **IndexFlatIP** shadow baseline for candidate overlap and leakage checks. Calibrate HNSW only on development queries; freeze its settings before evaluating held-out queries. IndexFlatIP is exact; do **not** call it an ANN approximation.
 - One shared initial depth \`B=100\`, shortlist/output K=10, teacher-score eligible candidate universe \`C_B\` for every feedback policy, plus exactly the same immutable document universe. All methods make a fresh corpus search against the **same fixed index** when their method supports a modified query vector.
-- Fix query ID split: a non-test **feedback acquisition + hyperparameter development** subset, and a disjoint test-query subset. Reserve a third untouched task for stronger cross-task evaluation if extended.
+- Fix query-ID splits for **held-out transfer**: a disjoint feedback acquisition/development set and an untouched evaluation set. For the *separate online-per-query* evaluation, test queries may be teacher-scored within their charged budgets but their qrels remain hidden from the method. Reserve a third task for stronger cross-task transfer if extended.
 - Record all per-query vectors, raw similarity, initial top-100 IDs/ranks, teacher-score cache keys, final full-index top-100 IDs/ranks, qrels, and runtime. Reconstruct no missing observation as 0.
+
+**Two test-query regimes (DO NOT MIX):** The *online/per-query* regime permits a charged teacher score for the very query being evaluated (but never its qrels); that is the native ReFIT/TOuR setting, and a global/task state may be fitted on the same rewarded queries with results reported as **transductive adaptation**. The *held-out transfer* regime collects teacher scores only on a disjoint feedback-acquisition subset, then evaluates later queries without teacher scores; ReFIT/TOuR query-private states have no transfer mechanism in that regime and must be shown as **unadapted / not applicable**, not given free teacher calls. Record both regimes separately, with the same pair eligibility and accounting within each regime. No test qrels may inform either regime.
 
 **Two separate and fair experiments (DO NOT MIX):**
 
@@ -97,7 +99,7 @@ The proposal *might* have value if E2 reallocates sparse teacher calls more effe
 
 ## 4. Dataset columns and audit constraints
 
-Use one row per stable \`(dataset, query_id, doc_id, run_id)\`, plus a separate per-query record and full-model/index manifest. Existing [26-column CSV header](../datasets/candidate_repair_schema_v1.csv) is a **schema only**, with **zero** measured rows at this date.
+Use one row per stable \`(dataset, query_id, doc_id, run_id)\`, plus a separate per-query record and full-model/index manifest. Existing [26-column CSV header](datasets/candidate_repair_schema_v1.csv) is a **schema only**, with **zero** measured rows at this date.
 
 **Must contain**: \`retriever_score_raw\`, \`retriever_rank\`, \`reranker_score_raw\` (nullable), \`reranker_was_called\`, \`desired_relevance_grade\` from qrels (nullable), \`qrel_judgment_status\`, \`oracle_candidate_pool_id\`, \`desired_oracle_rank_in_pool\`, \`initial_top_k\`, \`initial_top_b\`, \`expanded_candidate\`, \`candidate_source\`, \`final_rank\`, and distinct feedback cost. Add these fields when materializing a real run: \`feedback_set_id\`, \`reranker_input_kind\` (scalar/ordinal), \`rank_to_score_rule\`, \`base_index_sha256\`, \`index_kind\`, \`model_revision\`, \`score_normalization\`, \`document_ever_rewarded\`, \`document_seen_in_initial_B\`, \`query_rewarded_in_feedback_split\`, \`judged_query_coverage\`, \`oracle_coverage_warning\`, and \`latency_p95\` from per-query telemetry.
 

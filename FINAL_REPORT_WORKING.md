@@ -1,6 +1,6 @@
 # Ceous — Final Report Working Document
 
-**Status:** WORKING DRAFT — preliminary SciFact smoke diagnostics recorded; held-out study and final submission are not yet confirmed.
+**Status:** WORKING DRAFT — revised research narrative; a Moodle final-submission receipt exists, but this working file is not verified as identical to the submitted PDF.
 **Course:** IIIT Hyderabad · IRE M26CS4.406 · 15 November 2026
 **Author:** Nilanjan Sarkar
 **Document for joint review by:** project team, ChatGPT, and the existing Claude Science Ceous project. Do not represent this revision as already approved by Claude Science.
@@ -18,7 +18,7 @@
 
 ### Abstract
 
-Two-stage retrieval relies on a fast first-stage retriever to shortlist documents for a slower, stronger reranker. A document ranked within a broad first-stage pool (e.g., top 200), but below the actual reranking cutoff (e.g., top 20), cannot benefit from the reranker. We study how expensive reranker feedback, used selectively, can improve coverage of highly relevant or reranker-preferred documents in a fixed-size top-K shortlist, subject to feedback and inference-cost constraints. The solution space remains open: inference-time adaptation, selective reranking, and retriever post-training may be evaluated rather than assumed.
+Modern two-stage retrieval uses a relatively cheap retriever to collect candidate documents, followed by an expensive reranker that can inspect only a limited shortlist. Retraining the retriever with costly reward-model feedback is one way to improve this pipeline, but every new training iteration requires selecting informative query–document pairs and updating model parameters. Motivated by post-training research and inference-time feedback literature, we study a narrower **minimal-additional-training** alternative: keep retriever and index weights frozen, selectively use expensive teacher feedback at query time, and adapt query-specific state or shortlist selection under a measured retrieval and feedback budget. We evaluate relevance quality against direct reranking and other cost-aware controls, and distinguish candidate-pool coverage from within-pool promotion. These are inference-time experiments, not evidence of completed retriever post-training.
 
 ### 1. Problem statement
 
@@ -32,32 +32,31 @@ RQ1: How often and for which queries do retriever top-K rankings disagree with s
 
 Hold query sets, corpus, first-stage baseline, teacher, candidate depth, and label definitions fixed. Compare (i) original retriever top-K, (ii) larger reranking-depth and cost-matched baselines, and (iii) tested feedback-informed shortlist policies. Within C_B, measure teacher-preference coverage: the fraction of the teacher's top-m documents among C_B included in S_K. Report relevance Recall@K using independent qrels, MRR@10 or nDCG@K as appropriate, and measured teacher-call counts and latency. Separate in-pool promotion from out-of-pool discovery; use held-out queries and controlled ablations. The teacher should not be evaluated solely on its own pseudo-labels.
 
-### 4. Baselines and initial experiments
+### 4. Controlled inference-time experiments
 
-**Earlier MS MARCO teacher-feedback pilot.** On a 50,000-passage corpus with 500 evaluation queries, exact-search MRR@10 was **0.890777** for untouched ANCE, **0.866675** for HNSW + teacher, and **0.855858** for IVF + teacher. Neither post-trained branch improved the untouched baseline; only one training seed was run.
+**Audited exploratory SciFact study (15 November 2026).** The encoder and index weights remained frozen; the run used existing aligned cached dense vectors and teacher scores, with no fresh teacher or encoder inference. The team used a 405-query DEV split for family selection and a 100-query INNER partition for descriptive consistency. **All 505 queries were previously exposed**; INNER is not an untouched test set.
 
-**DISCo-inspired coverage feasibility smoke (15 November 2026; SciFact TRAIN, 5 queries).** Frozen BM25, TAS-B, RRF, ColBERTv2 and coverage variants were evaluated retrospectively against SciFact train qrels. The figures below are from **five single-positive train queries**, *not an out-of-domain held-out test*. Each positive was present within the original 200-document candidate pool.
+| Method | DEV nDCG@10 | INNER nDCG@10 | Teacher pairs | Retrieval work |
+|:--|--:|--:|--:|:--|
+| Dense retrieval | 0.650374 | 0.663048 | 0 | One scan |
+| Direct rerank20 | 0.744338 | 0.753822 | 20 | One scan |
+| TOUR-style per-query movement | 0.747601 | 0.760260 | 20 | Two scans |
+| H2 local-covariance movement | 0.745127 | 0.757902 | 20 | Two scans |
+| Direct rerank50 | 0.753785 | 0.791469 | 50 | Higher-feedback diagnostic |
 
-| Method | Recall@10 | nDCG@10 |
-|:--|--:|--:|
-| BM25 | 1.00 | **0.8712** |
-| TAS-B dense | 0.80 | 0.6774 |
-| Hybrid RRF | 0.80 | 0.7262 |
-| ColBERTv2 relevance-only | 1.00 | 0.8000 |
-| DISCo-inspired token-coverage greedy | 1.00 | 0.8262 |
-| Residual-query token coverage | 1.00 | 0.8262 |
+A TOUR-style transfer exceeded rerank20 by **+0.003264 DEV nDCG@10** but required additional retrieval work and fell below the **predeclared +0.01** practical development screen. The tested H2 mechanism lost to the exact norm-matched TOUR comparator by **−0.002475 DEV** and **−0.002358 INNER**; its descriptive paired INNER bootstrap interval was approximately **[−0.01434, +0.00959]**. Neither result establishes a generalizable advantage. Across the 505 queries, 504/568 judged positive query-document pairs were within initial top50, while 57 queries had no judged positive in that pool. These observations motivate separating within-pool ranking from candidate discovery.
 
-The coverage arm gained **+0.0262 nDCG@10** relative to ColBERTv2 on these five training examples, but **did not beat BM25**. All five LLM decomposition requests returned **zero subqueries**. A synthetic two-facet positive control **passed**: coverage selected complementary facet-Y evidence within top-2, which relevance-only selection missed. No generalization, multi-hop, or statistical-significance claim follows from these checks.
+Teacher-cache inference cost was not incurred in this run; reported warm CPU timings exclude actual encoder and teacher inference, and cannot be called end-to-end deployment latency. For complete method budgets, preregistration, per-query outputs, and independent metrics audit, see [RESULTS.md](experiments/inference-time-ceous-20261115/RESULTS.md), [AUDIT_RESULTS.md](experiments/inference-time-ceous-20261115/AUDIT_RESULTS.md) and [PROTOCOL.md](experiments/inference-time-ceous-20261115/PROTOCOL.md).
 
-**Run trace.** The frozen protocol (PREREG.md), retrieve.py, score.py, controls.py, smoke JSONL, and smoke summary are in the preexisting local project branch at ~/Documents/ire-p5-minimal-evidence/branches/OOD_COVDECOMP_20261115/. The smoke retrieval ran 5 queries in **28.3099 seconds** total. The preregistered full study uses 100 SciFact test + 100 NFCorpus test + 100 MuSiQue 2-hop dev queries, with frozen weights and separate scoring; those results remain **pending verification**. This is a **DISCo-inspired** implementation, not a reproduction of DISCo's lifted/PLAID index.
+**Separate exploratory ideas, not the primary evidence:** DISCo-inspired coverage and multi-query decomposition have been investigated in a distinct P5 effort. Small preliminary feasibility checks do not establish performance on an independently audited holdout, and must not be mixed into the table above. Earlier ANN/ANCE domain-exploration records remain archived but are intentionally excluded from this project's main explanatory storyline.
 
 ### 5. Relation to prior work
 
-The Microsoft Research challenge on efficient post-training motivates data selection and expensive reward-model feedback. Reddy et al. (SIGIR 2025) directly study reranker relevance feedback at inference using query-representation updates and teacher distillation. Huo et al. (2026) study query-specific optimal reranking depth. DISCo (Nair et al., ICLR 2026) optimizes collective query coverage through successive dense index probes; this is conceptually relevant, but distinct from aligning individual retriever top-K candidates with a reranker's relevance preferences. We claim no new algorithm or performance improvement yet.
+The Microsoft Research challenge on efficient post-training motivates data selection and expensive reward-model feedback; we focus instead on **per-query feedback with frozen model weights** as a more tightly scoped inference-time question. TOUR and ReFIT are relevant prior inference-time feedback methods. Reddy et al. (SIGIR 2025) directly study reranker relevance feedback at inference using query-representation updates and teacher distillation. Huo et al. (2026) study query-specific optimal reranking depth. DISCo (Nair et al., ICLR 2026) optimizes collective query coverage through successive dense index probes; this is conceptually relevant, but distinct from aligning individual retriever top-K candidates with a reranker's relevance preferences. We claim no new algorithm or performance improvement yet.
 
 ### Submission and reproducibility status
 
-Working editable report: this Google Doc. Submission PDF: to be exported from this draft after evidence review (maximum two pages). Code/research repository: https://github.com/nilansa/ire-project-2026 (currently contains the documented research plan, pilot record and survey; a runnable full codebase has not been verified in this review). Recorded presentation: [VIDEO LINK TO BE ADDED]. Final upload / mentor sign-off: not verified. Claude Science: previous project direction reviewed from existing records, but live co-review of this revision has not been confirmed.
+This Markdown file is a **working report narrative**. A Moodle receipt confirms a final-submission PDF was received on 15 November 2026, but this revision has **not** been checked against or substituted for that submitted PDF. Maximum permitted final report length is two readable pages. Repository: https://github.com/nilansa/ire-project-2026. Audited result files and metric-replay scripts are present; a complete fresh-device end-to-end replay is not verified. Recorded presentation and mentor sign-off have not been independently confirmed here.
 
 ### Selected references
 
@@ -69,17 +68,15 @@ Huo et al., Optimal Re-Ranking Depth, 2026: https://arxiv.org/abs/2611.05908
 
 Nair et al., A Dense Subset Index for Collective Query Coverage (DISCo), ICLR 2026: https://proceedings.iclr.cc/paper_files/paper/2026/hash/6ded182245f8e4db3963d2027174133d-Abstract-Conference.html
 
-Existing Ceous pilot: https://github.com/nilansa/ire-project-2026/blob/main/experiments/ann-micro-pilot-20260907/RESULTS.md
-
 ## Editing and evidence rules
 
 - Do **not** commit to a training-free or trained approach in the problem definition; compare alternatives against the same measured target.
 - Use independent relevance judgments in addition to teacher pseudo-relevance.
 - Distinguish reranking within top-200 from recovering material missing entirely from top-200.
-- Do not claim an improvement based on the existing pilot: untouched ANCE remained stronger; one seed only.
+- Do not claim practical improvement over cost-matched direct reranking based on the small DEV gain or treat earlier exploratory domain trials as motivation for the final problem.
 - When adding a result, record the dataset split, configuration, exact command/log, run timestamp, and evaluated metric.
 - Keep the submitted report at or below **two pages**; the present linked PDF was checked to be exactly two A4 pages.
-- The GitHub default branch contains research/survey/pilot documentation; do not claim a runnable final codebase until it has been verified.
+- Link only audited result packages and metric-replay scripts; distinguish those from independently verified complete end-to-end inference.
 - Do not insert personal credentials or private data. The submission Drive folder is private.
 
 **Shared task ID:** `ire-final-submission-20261115-1943` (existing IRE submission task; this cloud-native document edit did not transfer files to local Codex and does not assert a new scratch-index revision).

@@ -1,5 +1,7 @@
 # Ceous | Training-Free Candidate Repair with Budgeted Relevance Feedback
 
+**Update — 16 November 2026:** The [focused 2023–2026 three-column comparison and controlled E1/E2 benchmark preregistration](BLACKBOX_RERANKER_FEEDBACK_CONTROLLED_COMPARISON_20261116.md) identifies **TTT-Embed (arXiv:2608.12569)** as the closest black-box scalar-feedback baseline and **Q-REACT (arXiv:2609.27688)** as a newer, visual-document follow-up. Read that audit before citing novelty or choosing a training-free method. An executable [planned experiment manifest](experiments/frozen-feedback/PREREGISTERED_MANIFEST_v1.json) is also linked; no runs have yet been measured.
+
 **Version:** 0.1 — 16 November 2026  
 **Status:** Research specification and literature map; **hypotheses only, no new experimental result or novelty claim**.  
 **Project:** [Ceous](https://github.com/nilansa/ire-project-2026) · **Task ID:** ire-ceous-training-free-rerank-20261116-0524  

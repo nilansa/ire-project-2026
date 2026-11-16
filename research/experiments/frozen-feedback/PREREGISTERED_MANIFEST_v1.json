@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "task_id": "ire-ceous-training-free-rerank-20261116-0524",
   "revision": "v1-planned-not-executed",
   "created_date": "2026-11-16",
@@ -62,7 +61,7 @@
     ],
     "query_document_pair_keys": "hash(dataset_rev,query_id,doc_id,teacher_rev,prompt_rev)",
     "unobserved_teacher_score": null,
-    "teacher_scores_on_test_prohibited_for_global_learning": true
+    "teacher_scores_on_test_prohibited_for_global_learning": "in_heldout_transfer_only; in_online_test_time_adaptation paid scores are permitted but qrels are never used"
   },
   "experiments": {
     "E1": {
@@ -80,7 +79,12 @@
         "ttt_embed_task",
         "ttt_embed_global"
       ],
-      "status": "NOT_RUN"
+      "status": "NOT_RUN",
+      "regimes": [
+        "online_test_query_adaptation_with_paid_test_query_teacher_scores",
+        "heldout_query_transfer_with_teacher_scores_only_on_disjoint_feedback_queries"
+      ],
+      "note": "Same scored pairs per method within each regime; test-query teacher calls forbidden only in heldout transfer. Query-private TOuR and ReFIT cannot transfer without paid query-specific scores and must not receive them for free."
     },
     "E2": {
       "description": "same TTT-Embed adaptation, different acquired feedback pairs under identical budgets",
@@ -115,10 +119,12 @@
     "warning": "Sparse qrels make oracle observed/conditional; unjudged documents are not known nonrelevant."
   },
   "splits": {
-    "feedback_learning": "NON_TEST_QUERY_SPLIT_TO_CREATE",
+    "feedback_learning": "DISJOINT_FROM_HELDOUT_TRANSFER_EVALUATION",
     "development": "NON_TEST_QUERY_SPLIT_TO_CREATE",
-    "evaluation": "HELD_OUT_TEST_QUERY_SPLIT_TO_CREATE",
-    "no_qrel_use_in_inference": true
+    "evaluation": "TWO_SEPARATE_REGIMES",
+    "no_qrel_use_in_inference": true,
+    "online_regime": "Teacher feedback from evaluated queries allowed only when explicitly counted in their budget; no gold labels.",
+    "heldout_transfer_regime": "No test query teacher calls; evaluate persistent state learned on separate feedback-acquisition queries."
   },
   "source_notes": [
     "https://arxiv.org/abs/2608.12569",

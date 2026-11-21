@@ -8,7 +8,7 @@ Ceous studies how a frozen dense retriever can use a small budget of reranker fe
 
 ## Submission
 
-- **[Final two-page technical report (PDF)](report/Ceous-Final-Two-Page-Report.pdf)** — version included in this GitHub repository
+- **[Ceous Final Report (PDF)](report/Ceous-Final-Report.pdf)** — version included in this GitHub repository
 - **[Final report folder in Nilanjan Sarkar's Drive](https://drive.google.com/drive/folders/1qpqFbFM1dtip521oe314WEknWLM1lyKo)**
 - **[Recorded presentation video](https://drive.google.com/file/d/1kf9SSlwgiJVrJ_ITRr9Xv2ngINr7PYrC/view)** and [video folder](https://drive.google.com/drive/folders/1w5bleV1Xb0ELg6PQO1xmRNsaCEnuXnHD)
 - **[Original experiment code and evidence archive](https://github.com/nilansa/ire-project-2026/tree/archive/pre-final-cleanup-20261121)** — prior tracked research, complete logs, review and evaluation evidence

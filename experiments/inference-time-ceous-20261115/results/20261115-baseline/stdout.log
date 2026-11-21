@@ -1,9 +1,0 @@
-START 2026-11-15T17:54:10Z
-STAGE start
-STAGE dev-predict 2026-11-15T17:54:10Z
-STAGE dev-score 2026-11-15T18:15:12Z
-STAGE selection 2026-11-15T18:16:32Z
-STAGE inner-predict 2026-11-15T18:16:45Z
-STAGE inner-score 2026-11-15T18:17:06Z
-COMPLETE 2026-11-15T18:17:08Z
-SUPERVISOR {"pid": 97605, "returncode": 0, "timed_out": false, "wall_seconds": 1377.944555875, "cap_seconds": 1800, "outcome": "completed"}
